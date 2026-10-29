@@ -1,7 +1,7 @@
 # Project P.A.T.H.
 ## Polar Artemis Telemetry & Horizon-Planner
 
-A client-side mission-planning interface for evaluating solar power generation potential and Direct-to-Earth (DTE) communication visibility across candidate landing sites in the lunar South Pole. Developed for the NASA International Space Apps Challenge (Badr City Local Event).
+A client-side mission-planning interface for evaluating solar power generation potential and Direct-to-Earth (DTE) communication visibility across candidate landing sites in the lunar South Pole. Developed for the NASA International Space Apps Challenge.
 
 ---
 
