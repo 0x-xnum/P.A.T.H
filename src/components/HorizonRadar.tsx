@@ -139,12 +139,91 @@ export const HorizonRadar: React.FC<HorizonRadarProps> = ({ sunPosition, earthPo
     ctx.fillStyle = '#94a3b8';
     ctx.fill();
 
-    // Calibration tick for polar projection
-    const [calibX, calibY] = polarToCanvas(0, 0);
+    // ==========================================
+    // RENDER CELESTIAL BODIES (SUN & EARTH)
+    // ==========================================
+
+    // 1. Render SUN
+    const [sunX, sunY] = polarToCanvas(sunPosition.azimuth, sunPosition.elevation);
+    const sunVisible = sunPosition.elevation > 0;
+
+    // Vector line from center to Sun
     ctx.beginPath();
-    ctx.arc(calibX, calibY, 2, 0, 2 * Math.PI);
-    ctx.fillStyle = 'rgba(56, 189, 248, 0.4)';
+    ctx.moveTo(centerX, centerY);
+    ctx.lineTo(sunX, sunY);
+    ctx.strokeStyle = sunVisible ? 'rgba(251, 191, 36, 0.25)' : 'rgba(239, 68, 68, 0.2)';
+    ctx.lineWidth = 1.5;
+    if (!sunVisible) ctx.setLineDash([3, 3]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Sun glowing corona
+    if (sunVisible) {
+      const sunGlow = ctx.createRadialGradient(sunX, sunY, 2, sunX, sunY, 18);
+      sunGlow.addColorStop(0, 'rgba(254, 240, 138, 0.9)');
+      sunGlow.addColorStop(0.4, 'rgba(251, 191, 36, 0.4)');
+      sunGlow.addColorStop(1, 'rgba(251, 191, 36, 0)');
+      ctx.beginPath();
+      ctx.arc(sunX, sunY, 18, 0, 2 * Math.PI);
+      ctx.fillStyle = sunGlow;
+      ctx.fill();
+    }
+
+    // Sun core disc
+    ctx.beginPath();
+    ctx.arc(sunX, sunY, sunVisible ? 6 : 4, 0, 2 * Math.PI);
+    ctx.fillStyle = sunVisible ? '#fbbf24' : '#ef4444';
     ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Sun tag label
+    ctx.fillStyle = sunVisible ? '#fbbf24' : '#f87171';
+    ctx.font = 'bold 10px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(`SUN (${sunPosition.elevation > 0 ? '+' : ''}${sunPosition.elevation.toFixed(1)}°)`, sunX, sunY - 14);
+
+    // 2. Render EARTH
+    const [earthX, earthY] = polarToCanvas(earthPosition.azimuth, earthPosition.elevation);
+    const earthVisible = earthPosition.elevation > 0;
+
+    // DTE radio frequency beam line from center to Earth
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY);
+    ctx.lineTo(earthX, earthY);
+    ctx.strokeStyle = earthVisible ? 'rgba(34, 211, 238, 0.35)' : 'rgba(239, 68, 68, 0.2)';
+    ctx.lineWidth = 1.5;
+    if (!earthVisible) ctx.setLineDash([3, 3]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Earth radio frequency wave halo
+    if (earthVisible) {
+      const earthGlow = ctx.createRadialGradient(earthX, earthY, 2, earthX, earthY, 16);
+      earthGlow.addColorStop(0, 'rgba(56, 189, 248, 0.8)');
+      earthGlow.addColorStop(0.5, 'rgba(14, 165, 233, 0.25)');
+      earthGlow.addColorStop(1, 'rgba(14, 165, 233, 0)');
+      ctx.beginPath();
+      ctx.arc(earthX, earthY, 16, 0, 2 * Math.PI);
+      ctx.fillStyle = earthGlow;
+      ctx.fill();
+    }
+
+    // Earth core disc (blue marble aesthetic)
+    ctx.beginPath();
+    ctx.arc(earthX, earthY, earthVisible ? 6 : 4, 0, 2 * Math.PI);
+    ctx.fillStyle = earthVisible ? '#0284c7' : '#991b1b';
+    ctx.fill();
+    ctx.strokeStyle = '#e0f2fe';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Earth tag label
+    ctx.fillStyle = earthVisible ? '#38bdf8' : '#f87171';
+    ctx.font = 'bold 10px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(`EARTH (${earthPosition.elevation > 0 ? '+' : ''}${earthPosition.elevation.toFixed(1)}°)`, earthX, earthY + 18);
 
     ctx.fillStyle = '#64748b';
     ctx.font = '9px monospace';
