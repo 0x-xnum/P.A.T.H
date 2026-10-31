@@ -92,17 +92,17 @@ export const SiteLeaderboard: React.FC<SiteLeaderboardProps> = ({
     });
 
   return (
-    <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-5 shadow-xl space-y-4">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-800/80 pb-3">
+    <div className="bg-[#090e18] border border-[#1b263b] rounded-lg p-3.5 space-y-3 font-mono">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-[#1b263b] pb-2.5">
         <div>
-          <h2 className="text-sm font-semibold tracking-wide text-slate-300 uppercase font-mono">
-            Candidate Site Feasibility Leaderboard
+          <h2 className="text-xs font-bold tracking-wider text-slate-300 uppercase">
+            CANDIDATE SITE FEASIBILITY MATRIX
           </h2>
-          <p className="text-xs text-slate-500 font-mono">
+          <p className="text-[10px] text-slate-500">
             Comparative Screening Matrix Across Artemis Regions &amp; Custom Targets ({rankedSites.length} Sites)
           </p>
         </div>
-        <span className="text-[11px] font-mono text-sky-400 bg-sky-500/10 border border-sky-500/20 px-2.5 py-1 rounded">
+        <span className="text-[11px] text-sky-400 bg-sky-950/60 border border-sky-800/80 px-2 py-0.5 rounded">
           {rankedSites.filter((s) => s.rating === 'optimal').length} Sites Currently GO
         </span>
       </div>
@@ -110,17 +110,17 @@ export const SiteLeaderboard: React.FC<SiteLeaderboardProps> = ({
       <div className="overflow-x-auto">
         <table className="w-full text-left font-mono text-xs">
           <thead>
-            <tr className="border-b border-slate-800 text-[11px] text-slate-500 uppercase tracking-wider">
-              <th className="py-2.5 px-3">Rank</th>
-              <th className="py-2.5 px-3">Candidate Region</th>
-              <th className="py-2.5 px-3 text-center">Feasibility Score</th>
-              <th className="py-2.5 px-3 text-right">Sun Elev</th>
-              <th className="py-2.5 px-3 text-right">Earth Elev</th>
-              <th className="py-2.5 px-3 text-center">Dispatch Status</th>
-              <th className="py-2.5 px-3 text-right">Action</th>
+            <tr className="border-b border-[#1b263b] text-[10px] text-slate-500 uppercase tracking-wider">
+              <th className="py-2 px-3">Rank</th>
+              <th className="py-2 px-3">Candidate Region</th>
+              <th className="py-2 px-3 text-center">Feasibility Score</th>
+              <th className="py-2 px-3 text-right">Sun Elev</th>
+              <th className="py-2 px-3 text-right">Earth Elev</th>
+              <th className="py-2 px-3 text-center">Dispatch Status</th>
+              <th className="py-2 px-3 text-right">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/60">
+          <tbody className="divide-y divide-[#172235]">
             {rankedSites.map((item, index) => {
               const isSelected = item.site.id === selectedSiteId;
 
@@ -205,8 +205,11 @@ export const SiteLeaderboard: React.FC<SiteLeaderboardProps> = ({
                       <span className="text-[11px] text-sky-400 font-bold">ACTIVE</span>
                     ) : (
                       <button
-                        onClick={() => onSelectSite(item.site)}
-                        className="px-2.5 py-1 rounded bg-slate-800 hover:bg-sky-600 hover:text-white text-slate-300 transition-colors text-[11px]"
+                        onClick={() => {
+                          onSelectSite(item.site);
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                        className="px-2.5 py-1 rounded bg-[#0e1726] border border-[#22354f] hover:bg-sky-600 hover:text-white text-slate-300 transition-colors text-[11px]"
                       >
                         Inspect
                       </button>
