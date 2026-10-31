@@ -209,15 +209,17 @@ export default function App() {
       </main>
 
       {/* Footer Attribution */}
-      <footer className="border-t border-slate-900 bg-slate-950/80 px-6 py-4 mt-8 text-center text-xs font-mono text-slate-500">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>Project P.A.T.H. • NASA Space Apps Challenge 2026</span>
-          <div className="flex items-center gap-4 text-[11px]">
-            <span>NASA Moon Trek WMTS</span>
+      <footer className="border-t border-[#1b273b] bg-[#070b12] px-6 py-4 mt-6 text-center text-xs font-mono text-slate-500">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px]">
+          <span>Project P.A.T.H. • NASA Space Apps Challenge 2026 (Cairo Local Event)</span>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <span>NASA Release 24-136 Candidate Baseline</span>
             <span>•</span>
-            <span>LRO LOLA Topography</span>
+            <span>LRO LOLA Polar Topographic Profiles</span>
             <span>•</span>
-            <span>MIT License</span>
+            <span>JPL DE441 Ephemeris Calibration</span>
+            <span>•</span>
+            <span className="text-slate-400">Independent Educational Prototype</span>
           </div>
         </div>
       </footer>

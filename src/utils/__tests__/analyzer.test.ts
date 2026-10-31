@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   calculateSolarIlluminationFraction,
+  calculatePhotovoltaicPowerWatts,
   evaluateDteLinkStatus,
   evaluateMissionWindowRating,
   sampleTelemetry,
@@ -69,5 +70,18 @@ describe('Mission Feasibility & Topographic Analyzer', () => {
     expect(sample.earth).toBeDefined();
     expect(['optimal', 'marginal', 'hazardous']).toContain(sample.windowRating);
     expect(sample.reasons.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('calculates physically sound photovoltaic power for 10m² multi-faceted polar array', () => {
+    // When Sun is illuminated (fraction = 1.0) at grazing elevation (1.5 deg):
+    // Effective aperture = 10 / pi * cos(1.5°) ≈ 3.18 m²
+    // Expected power = 1361 * 3.18 * 0.32 ≈ 1386 Watts
+    const powerClear = calculatePhotovoltaicPowerWatts(1.0, 1.5);
+    expect(powerClear).toBeGreaterThan(1300);
+    expect(powerClear).toBeLessThan(1450);
+
+    // When occluded (fraction = 0):
+    const powerOccluded = calculatePhotovoltaicPowerWatts(0, 1.5);
+    expect(powerOccluded).toBe(0);
   });
 });

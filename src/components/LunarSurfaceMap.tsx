@@ -316,28 +316,28 @@ export const LunarSurfaceMap: React.FC<LunarSurfaceMapProps> = ({
   };
 
   return (
-    <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-5 shadow-xl flex flex-col items-center">
+    <div className="bg-[#090e18] border border-[#1b263b] rounded-lg p-3.5 flex flex-col items-center font-mono">
       <div className="w-full flex items-center justify-between mb-2">
         <div>
-          <h2 className="text-sm font-semibold tracking-wide text-slate-300 uppercase font-mono">
-            Lunar South Pole Surface Map
+          <h2 className="text-xs font-bold tracking-wider text-slate-300 uppercase">
+            LUNAR SOUTH POLE SURFACE MAP
           </h2>
-          <p className="text-xs text-slate-500 font-mono">
-            Polar Stereographic Projection (83°S to 90°S Pole) • {customSites.length} Custom Target{customSites.length !== 1 ? 's' : ''}
+          <p className="text-[10px] text-slate-500">
+            Tactical Polar Stereographic Schematic Projection (83°S to 90°S) • {customSites.length} Custom Target{customSites.length !== 1 ? 's' : ''}
           </p>
         </div>
-        <div className="flex items-center gap-3 text-xs font-mono">
+        <div className="flex items-center gap-3 text-[10px]">
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block" />
-            <span className="text-slate-300">GO</span>
+            <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+            <span className="text-slate-300">NOMINAL</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block" />
-            <span className="text-slate-300">CAUTION</span>
+            <span className="w-2 h-2 rounded-full bg-amber-500 inline-block" />
+            <span className="text-slate-300">ADVISORY</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block" />
-            <span className="text-slate-300">NO-GO</span>
+            <span className="w-2 h-2 rounded-full bg-rose-500 inline-block" />
+            <span className="text-slate-300">HAZARD</span>
           </div>
         </div>
       </div>
