@@ -1,18 +1,89 @@
+import { useState, useMemo } from 'react';
+import { LandingSite } from './types';
+import { DEFAULT_LANDING_SITE } from './data/landingSites';
+import { sampleTelemetry, evaluateWindowForecast } from './utils/analyzer';
+import { Header } from './components/Header';
+import { SiteSelector } from './components/SiteSelector';
+import { HorizonRadar } from './components/HorizonRadar';
+import { StatusCard } from './components/StatusCard';
+import { TimelineControls } from './components/TimelineControls';
+
 export default function App() {
+  const [selectedSite, setSelectedSite] = useState<LandingSite>(DEFAULT_LANDING_SITE);
+  // Default simulation timestamp: October 15, 2026 at 12:00 UTC (Nominal Artemis III exploration frame)
+  const [currentDate, setCurrentDate] = useState<Date>(
+    new Date(Date.UTC(2026, 9, 15, 12, 0, 0))
+  );
+
+  // Compute real-time sample telemetry
+  const telemetry = useMemo(() => {
+    return sampleTelemetry(selectedSite, currentDate);
+  }, [selectedSite, currentDate]);
+
+  // Compute 14-day tactical window forecast
+  const forecastSamples = useMemo(() => {
+    return evaluateWindowForecast(selectedSite, currentDate, 14, 6);
+  }, [selectedSite, currentDate]);
+
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-6 text-center">
-      <div className="max-w-xl rounded-xl border border-slate-800 bg-slate-900/60 p-8 shadow-2xl backdrop-blur">
-        <span className="text-xs font-mono uppercase tracking-widest text-sky-400">NASA Space Apps 2026</span>
-        <h1 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">Project P.A.T.H.</h1>
-        <p className="mt-2 text-sm text-slate-400">
-          Polar Artemis Telemetry &amp; Horizon-Planner
-        </p>
-        <div className="mt-6 flex justify-center gap-2 font-mono text-xs text-slate-500">
-          <span className="rounded bg-slate-800 px-2 py-1">React 18</span>
-          <span className="rounded bg-slate-800 px-2 py-1">TypeScript</span>
-          <span className="rounded bg-slate-800 px-2 py-1">Tailwind CSS</span>
+    <div className="min-h-screen bg-[#07090e] text-slate-100 flex flex-col font-sans selection:bg-sky-500 selection:text-black">
+      {/* Top Application Header */}
+      <Header currentDate={currentDate} selectedSiteName={selectedSite.name} />
+
+      {/* Main Mission Control Grid */}
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* Left Column: Target Site Selection & Site Details (4 cols) */}
+          <div className="lg:col-span-5 space-y-6">
+            <SiteSelector selectedSite={selectedSite} onSelectSite={setSelectedSite} />
+
+            {/* Quick Scientific Briefing Box */}
+            <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-4 text-xs font-mono text-slate-400 space-y-2">
+              <div className="text-sky-400 font-semibold flex items-center gap-2">
+                <span>ℹ️ POLAR MISSION FLIGHT CRITERIA</span>
+              </div>
+              <p className="leading-relaxed text-[11px]">
+                The Moon's axis is tilted only 1.54°. South Pole crater rims experience grazing solar paths that sweep
+                360° horizontally. Artemis III operations require persistent Sun for lander solar array power and direct
+                line-of-sight to Earth for unassisted real-time telemetry.
+              </p>
+            </div>
+          </div>
+
+          {/* Right Column: 360° Horizon Radar (7 cols) */}
+          <div className="lg:col-span-7">
+            <HorizonRadar
+              sunPosition={telemetry.sun}
+              earthPosition={telemetry.earth}
+              siteName={selectedSite.name}
+            />
+          </div>
         </div>
-      </div>
+
+        {/* Go/No-Go Mission Status & Telemetry Breakdown */}
+        <StatusCard telemetry={telemetry} />
+
+        {/* Temporal Scrubber & Playback Timeline */}
+        <TimelineControls
+          currentDate={currentDate}
+          onChangeDate={setCurrentDate}
+          forecastSamples={forecastSamples}
+        />
+      </main>
+
+      {/* Footer Attribution */}
+      <footer className="border-t border-slate-900 bg-slate-950/80 px-6 py-4 mt-8 text-center text-xs font-mono text-slate-500">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+          <span>Project P.A.T.H. • NASA Space Apps Challenge 2026</span>
+          <div className="flex items-center gap-4 text-[11px]">
+            <span>NASA Moon Trek WMTS</span>
+            <span>•</span>
+            <span>LRO LOLA Topography</span>
+            <span>•</span>
+            <span>MIT License</span>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
