@@ -5,6 +5,7 @@ import { sampleTelemetry, evaluateWindowForecast } from './utils/analyzer';
 import { Header } from './components/Header';
 import { SiteSelector } from './components/SiteSelector';
 import { HorizonRadar } from './components/HorizonRadar';
+import { LunarSurfaceMap } from './components/LunarSurfaceMap';
 import { StatusCard } from './components/StatusCard';
 import { TimelineControls } from './components/TimelineControls';
 import { SiteLeaderboard } from './components/SiteLeaderboard';
@@ -13,6 +14,7 @@ import { MissionReportModal } from './components/MissionReportModal';
 export default function App() {
   const [selectedSite, setSelectedSite] = useState<LandingSite>(DEFAULT_LANDING_SITE);
   const [isReportOpen, setIsReportOpen] = useState(false);
+  const [activeViewTab, setActiveViewTab] = useState<'radar' | 'surface'>('radar');
   // Default simulation timestamp: October 15, 2026 at 12:00 UTC (Nominal Artemis III exploration frame)
   const [currentDate, setCurrentDate] = useState<Date>(
     new Date(Date.UTC(2026, 9, 15, 12, 0, 0))
@@ -57,13 +59,44 @@ export default function App() {
             </div>
           </div>
 
-          {/* Right Column: 360° Horizon Radar (7 cols) */}
-          <div className="lg:col-span-7">
-            <HorizonRadar
-              sunPosition={telemetry.sun}
-              earthPosition={telemetry.earth}
-              siteName={selectedSite.name}
-            />
+          {/* Right Column: 360° Horizon Radar / Surface Map Toggle (7 cols) */}
+          <div className="lg:col-span-7 space-y-3">
+            <div className="flex items-center justify-end gap-2 font-mono text-xs">
+              <button
+                onClick={() => setActiveViewTab('radar')}
+                className={`px-3 py-1.5 rounded-lg border transition-colors ${
+                  activeViewTab === 'radar'
+                    ? 'bg-sky-500/20 text-sky-400 border-sky-500/40 font-bold'
+                    : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                🛰️ Sky Horizon Radar
+              </button>
+              <button
+                onClick={() => setActiveViewTab('surface')}
+                className={`px-3 py-1.5 rounded-lg border transition-colors ${
+                  activeViewTab === 'surface'
+                    ? 'bg-sky-500/20 text-sky-400 border-sky-500/40 font-bold'
+                    : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                🗺️ South Pole Surface Map
+              </button>
+            </div>
+
+            {activeViewTab === 'radar' ? (
+              <HorizonRadar
+                sunPosition={telemetry.sun}
+                earthPosition={telemetry.earth}
+                siteName={selectedSite.name}
+              />
+            ) : (
+              <LunarSurfaceMap
+                currentDate={currentDate}
+                selectedSite={selectedSite}
+                onSelectSite={setSelectedSite}
+              />
+            )}
           </div>
         </div>
 
