@@ -8,9 +8,11 @@ import { HorizonRadar } from './components/HorizonRadar';
 import { StatusCard } from './components/StatusCard';
 import { TimelineControls } from './components/TimelineControls';
 import { SiteLeaderboard } from './components/SiteLeaderboard';
+import { MissionReportModal } from './components/MissionReportModal';
 
 export default function App() {
   const [selectedSite, setSelectedSite] = useState<LandingSite>(DEFAULT_LANDING_SITE);
+  const [isReportOpen, setIsReportOpen] = useState(false);
   // Default simulation timestamp: October 15, 2026 at 12:00 UTC (Nominal Artemis III exploration frame)
   const [currentDate, setCurrentDate] = useState<Date>(
     new Date(Date.UTC(2026, 9, 15, 12, 0, 0))
@@ -29,7 +31,11 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#07090e] text-slate-100 flex flex-col font-sans selection:bg-sky-500 selection:text-black">
       {/* Top Application Header */}
-      <Header currentDate={currentDate} selectedSiteName={selectedSite.name} />
+      <Header
+        currentDate={currentDate}
+        selectedSiteName={selectedSite.name}
+        onOpenReport={() => setIsReportOpen(true)}
+      />
 
       {/* Main Mission Control Grid */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
@@ -76,6 +82,15 @@ export default function App() {
           currentDate={currentDate}
           onChangeDate={setCurrentDate}
           forecastSamples={forecastSamples}
+        />
+
+        {/* Official Mission Report Modal */}
+        <MissionReportModal
+          isOpen={isReportOpen}
+          onClose={() => setIsReportOpen(false)}
+          site={selectedSite}
+          telemetry={telemetry}
+          currentDate={currentDate}
         />
       </main>
 

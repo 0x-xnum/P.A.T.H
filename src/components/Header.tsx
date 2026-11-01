@@ -3,9 +3,10 @@ import React from 'react';
 interface HeaderProps {
   currentDate: Date;
   selectedSiteName: string;
+  onOpenReport: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ currentDate, selectedSiteName }) => {
+export const Header: React.FC<HeaderProps> = ({ currentDate, selectedSiteName, onOpenReport }) => {
   const formattedUtc = currentDate.toUTCString();
 
   return (
@@ -26,7 +27,7 @@ export const Header: React.FC<HeaderProps> = ({ currentDate, selectedSiteName })
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-4 text-xs font-mono">
+        <div className="flex flex-wrap items-center gap-3 text-xs font-mono">
           <div className="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-md flex items-center gap-2">
             <span className="text-slate-500">TARGET:</span>
             <span className="text-slate-200 font-semibold">{selectedSiteName}</span>
@@ -38,10 +39,13 @@ export const Header: React.FC<HeaderProps> = ({ currentDate, selectedSiteName })
             <span className="text-slate-200 font-semibold">{formattedUtc}</span>
           </div>
 
-          <div className="hidden lg:flex items-center gap-1.5 text-slate-500 text-[11px]">
-            <span className="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800">IAU ME-FRAME</span>
-            <span className="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800">LRO LOLA MESH</span>
-          </div>
+          <button
+            onClick={onOpenReport}
+            className="bg-sky-600 hover:bg-sky-500 text-white font-bold px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors shadow-lg shadow-sky-600/20"
+          >
+            <span>📄</span>
+            <span>Flight Brief</span>
+          </button>
         </div>
       </div>
     </header>
