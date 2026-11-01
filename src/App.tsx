@@ -7,6 +7,7 @@ import { SiteSelector } from './components/SiteSelector';
 import { HorizonRadar } from './components/HorizonRadar';
 import { StatusCard } from './components/StatusCard';
 import { TimelineControls } from './components/TimelineControls';
+import { SiteLeaderboard } from './components/SiteLeaderboard';
 
 export default function App() {
   const [selectedSite, setSelectedSite] = useState<LandingSite>(DEFAULT_LANDING_SITE);
@@ -62,6 +63,13 @@ export default function App() {
 
         {/* Go/No-Go Mission Status & Telemetry Breakdown */}
         <StatusCard telemetry={telemetry} />
+
+        {/* Multi-Site Comparative Leaderboard */}
+        <SiteLeaderboard
+          currentDate={currentDate}
+          selectedSiteId={selectedSite.id}
+          onSelectSite={setSelectedSite}
+        />
 
         {/* Temporal Scrubber & Playback Timeline */}
         <TimelineControls
