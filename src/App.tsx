@@ -89,6 +89,7 @@ export default function App() {
                 sunPosition={telemetry.sun}
                 earthPosition={telemetry.earth}
                 siteName={selectedSite.name}
+                siteId={selectedSite.id}
               />
             ) : (
               <LunarSurfaceMap

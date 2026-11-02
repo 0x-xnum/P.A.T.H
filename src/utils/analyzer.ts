@@ -6,22 +6,31 @@ import {
   CelestialBodyPosition,
 } from '../types';
 import { getSunPosition, getEarthPosition } from './ephemeris';
+import { getTerrainElevationCutoff } from '../data/terrainMasks';
 
 export const SOLAR_CONSTANT_W_M2 = 1361;
 
-export function calculateSolarIlluminationFraction(sunPosition: CelestialBodyPosition): number {
-  if (sunPosition.elevation <= 0) {
+export function calculateSolarIlluminationFraction(
+  sunPosition: CelestialBodyPosition,
+  terrainCutoff: number
+): number {
+  if (sunPosition.elevation <= terrainCutoff) {
     return 0;
   }
   const elevationRad = (sunPosition.elevation * Math.PI) / 180;
+  // Models vertical polar array capture factor
   const verticalPanelFactor = Math.cos(elevationRad);
   return Number(Math.min(1.0, Math.max(0.0, verticalPanelFactor)).toFixed(3));
 }
 
-export function evaluateDteLinkStatus(earthPosition: CelestialBodyPosition): DteLinkStatus {
-  if (earthPosition.elevation > 1.0) {
+export function evaluateDteLinkStatus(
+  earthPosition: CelestialBodyPosition,
+  terrainCutoff: number
+): DteLinkStatus {
+  const clearance = earthPosition.elevation - terrainCutoff;
+  if (clearance > 0.5) {
     return 'connected';
-  } else if (earthPosition.elevation > 0.0) {
+  } else if (clearance >= 0.0) {
     return 'marginal';
   } else {
     return 'blackout';
@@ -30,29 +39,46 @@ export function evaluateDteLinkStatus(earthPosition: CelestialBodyPosition): Dte
 
 export function evaluateMissionWindowRating(
   sunPosition: CelestialBodyPosition,
-  earthPosition: CelestialBodyPosition
+  sunTerrainCutoff: number,
+  earthPosition: CelestialBodyPosition,
+  earthTerrainCutoff: number
 ): { rating: MissionWindowRating; reasons: string[] } {
   const reasons: string[] = [];
 
-  const sunSafe = sunPosition.elevation > 0.5;
-  const sunMarginal = sunPosition.elevation > 0.0;
-  const earthSafe = earthPosition.elevation > 1.0;
-  const earthMarginal = earthPosition.elevation > 0.0;
+  const sunClearance = sunPosition.elevation - sunTerrainCutoff;
+  const earthClearance = earthPosition.elevation - earthTerrainCutoff;
+
+  const sunSafe = sunClearance > 0.3;
+  const sunMarginal = sunClearance >= 0.0;
+  const earthSafe = earthClearance > 0.5;
+  const earthMarginal = earthClearance >= 0.0;
 
   if (sunSafe) {
-    reasons.push('Solar arrays clear of terrain shadow; continuous power generation active.');
+    reasons.push(
+      `Sun clears local LOLA ridge profile (+${sunTerrainCutoff.toFixed(1)}° mask) by +${sunClearance.toFixed(1)}°; continuous solar array power nominal.`
+    );
   } else if (sunMarginal) {
-    reasons.push('Grazing solar illumination; low incident power on vertical photovoltaic arrays.');
+    reasons.push(
+      `Sun grazing near local terrain crest (+${sunTerrainCutoff.toFixed(1)}° mask); reduced photovoltaic yield and risk of localized shadow cast.`
+    );
   } else {
-    reasons.push('Solar occlusion; site immersed in topographic shadow with thermal freeze risk.');
+    reasons.push(
+      `Solar occlusion: Sun is at ${sunPosition.elevation.toFixed(1)}°, below the local LOLA ridge mask of +${sunTerrainCutoff.toFixed(1)}° (thermal freeze risk).`
+    );
   }
 
   if (earthSafe) {
-    reasons.push('Direct-to-Earth line-of-sight established; high-bandwidth DSN comm link nominal.');
+    reasons.push(
+      `Direct-to-Earth line-of-sight established: Earth is at +${earthPosition.elevation.toFixed(1)}°, clearing terrain mask (+${earthTerrainCutoff.toFixed(1)}°) by +${earthClearance.toFixed(1)}°.`
+    );
   } else if (earthMarginal) {
-    reasons.push('Low Earth horizon elevation; multipath degradation risk for radio communications.');
+    reasons.push(
+      `Earth near local ridge crest (+${earthTerrainCutoff.toFixed(1)}° mask); low elevation line-of-sight with possible multipath RF degradation.`
+    );
   } else {
-    reasons.push('Earth occluded below local horizon; complete radio blackout for direct telemetry.');
+    reasons.push(
+      `Communication blackout: Earth is at ${earthPosition.elevation.toFixed(1)}°, occluded behind local crater rim (+${earthTerrainCutoff.toFixed(1)}° required).`
+    );
   }
 
   let rating: MissionWindowRating = 'hazardous';
@@ -69,11 +95,26 @@ export function evaluateMissionWindowRating(
 }
 
 export function sampleTelemetry(site: LandingSite, date: Date): TelemetrySample {
-  const sun = getSunPosition(site.coordinates, date);
-  const earth = getEarthPosition(site.coordinates, date);
-  const solarFraction = calculateSolarIlluminationFraction(sun);
-  const dteStatus = evaluateDteLinkStatus(earth);
-  const { rating, reasons } = evaluateMissionWindowRating(sun, earth);
+  const rawSun = getSunPosition(site.coordinates, date);
+  const rawEarth = getEarthPosition(site.coordinates, date);
+
+  // Evaluate site-specific LOLA topographic horizon masks for Sun and Earth azimuths
+  const sunTerrainCutoff = getTerrainElevationCutoff(site.id, rawSun.azimuth);
+  const earthTerrainCutoff = getTerrainElevationCutoff(site.id, rawEarth.azimuth);
+
+  const sun: CelestialBodyPosition = {
+    ...rawSun,
+    isVisible: rawSun.elevation > sunTerrainCutoff,
+  };
+
+  const earth: CelestialBodyPosition = {
+    ...rawEarth,
+    isVisible: rawEarth.elevation > earthTerrainCutoff,
+  };
+
+  const solarFraction = calculateSolarIlluminationFraction(sun, sunTerrainCutoff);
+  const dteStatus = evaluateDteLinkStatus(earth, earthTerrainCutoff);
+  const { rating, reasons } = evaluateMissionWindowRating(sun, sunTerrainCutoff, earth, earthTerrainCutoff);
 
   return {
     timestamp: date.toISOString(),
