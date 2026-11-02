@@ -33,9 +33,12 @@ export const SiteSelector: React.FC<SiteSelectorProps> = ({ selectedSite, onSele
         elevationMeters: elev,
       },
       description: 'User-specified target coordinates evaluated in local lunar topocentric frame.',
+      rimHeightMeters: 2000,
       permanentlyShadowedNearby: Math.abs(lat) > 85,
       isOfficialArtemisCandidate: false,
+      category: 'custom',
       scientificValue: 'Arbitrary landing coordinates designated for mission feasibility screening.',
+      officialCitation: 'Custom User Coordinate Input',
     };
 
     onSelectSite(newCustomSite);

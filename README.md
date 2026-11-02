@@ -18,7 +18,7 @@ Existing mission analysis tools (such as broad-spectrum SPICE toolkits) require 
 
 ## 2. Core Capabilities
 
-* **Target Region Parameterization:** Ingests topographic coordinates for the 13 designated NASA Artemis III candidate landing regions, including Shackleton rim, Haworth, Faustini rim, and Malapert Mountain.
+* **Target Region Parameterization:** Ingests topographic coordinates and LOLA terrain profiles for the official October 2024 NASA Artemis III refined candidate landing regions (Peak near Cabeus B, Haworth, Malapert Massif, Mons Mouton Plateau, Mons Mouton, Nobile Rim 1 & 2, de Gerlache Rim 2, and Slater Plain), alongside historical 2022 candidate references.
 * **Horizon Elevation Engine:** Computes real-time topocentric elevation and azimuth coordinates for both the Sun and Earth relative to a local tangent plane at any selected lunar surface site.
 * **Temporal Scrutiny Interface:** Enables users to sweep across arbitrary mission dates throughout 2026 and 2027 to observe orbital diurnal progressions.
 * **Window Classification Logic:**

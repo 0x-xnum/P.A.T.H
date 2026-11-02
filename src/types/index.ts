@@ -13,7 +13,9 @@ export interface LandingSite {
   rimHeightMeters?: number;
   permanentlyShadowedNearby: boolean;
   isOfficialArtemisCandidate: boolean;
+  category: '2024-refined' | '2022-historical' | 'custom';
   scientificValue: string;
+  officialCitation: string;
 }
 
 export interface CelestialBodyPosition {
