@@ -2,6 +2,7 @@ import React from 'react';
 import { LandingSite } from '../types';
 import { ARTEMIS_CANDIDATE_SITES } from '../data/landingSites';
 import { sampleTelemetry } from '../utils/analyzer';
+import { getTerrainElevationCutoff } from '../data/terrainMasks';
 
 interface SiteLeaderboardProps {
   currentDate: Date;
@@ -36,31 +37,59 @@ export const SiteLeaderboard: React.FC<SiteLeaderboardProps> = ({
   const rankedSites: RankedSiteItem[] = allSitesToRank
     .map((site) => {
       const telemetry = sampleTelemetry(site, currentDate);
+      const sunMask = getTerrainElevationCutoff(site.id, telemetry.sun.azimuth);
+      const earthMask = getTerrainElevationCutoff(site.id, telemetry.earth.azimuth);
 
-      // Score Formulation:
-      // Sun Elevation weight: 50% (Max score if Sun > 1.5 deg)
-      // Earth Elevation weight: 50% (Max score if Earth > 3.0 deg)
-      let sunScore = 0;
-      if (telemetry.sun.elevation > 0) {
-        sunScore = Math.min(50, (telemetry.sun.elevation / 1.5) * 50);
+      const sunClearance = telemetry.sun.elevation - sunMask;
+      const earthClearance = telemetry.earth.elevation - earthMask;
+
+      // Authentic NASA Multi-Factor Feasibility Scoring (0 - 100):
+      // Gated by LOLA Topographic Horizon Profile Clearance & Flight Rules:
+      let score = 0;
+
+      if (telemetry.windowRating === 'optimal') {
+        // Safe site: Sun clears local ridge, Earth clears crater rim
+        // Sun score (0 - 45): full marks if sunClearance >= 1.0 deg above ridge
+        const sunScore = Math.min(45, Math.max(15, (Math.max(0, sunClearance) / 1.0) * 45));
+        // Earth score (0 - 45): full marks if earthClearance >= 3.0 deg above terrain
+        const earthScore = Math.min(45, Math.max(15, (Math.max(0, earthClearance) / 3.0) * 45));
+        // Science Bonus (0 - 10): reward for proximity to Permanently Shadowed Region (PSR) volatiles
+        const scienceBonus = site.permanentlyShadowedNearby ? 10 : 5;
+        score = Math.round(Math.min(100, sunScore + earthScore + scienceBonus));
+      } else if (telemetry.windowRating === 'marginal') {
+        // Caution site: grazing sun or marginal RF line-of-sight
+        const sunScore = Math.min(30, Math.max(5, (Math.max(0, sunClearance) / 0.5) * 30));
+        const earthScore = Math.min(30, Math.max(5, (Math.max(0, earthClearance) / 1.5) * 30));
+        score = Math.round(Math.min(65, Math.max(35, sunScore + earthScore + 5)));
+      } else {
+        // Hazardous site (NO-GO): Fatal terrain occlusion or comms blackout
+        // Heavily penalized! A NO-GO site must NEVER score above a viable landing site.
+        let partialViability = 0;
+        if (sunClearance > 0) partialViability += 12; // sun is clear but comms is occluded
+        if (earthClearance > 0) partialViability += 12; // comms clear but solar power occluded
+        score = Math.round(Math.min(28, Math.max(5, partialViability)));
       }
-
-      let earthScore = 0;
-      if (telemetry.earth.elevation > 0) {
-        earthScore = Math.min(50, (telemetry.earth.elevation / 3.0) * 50);
-      }
-
-      const totalScore = Math.round(Math.max(0, Math.min(100, sunScore + earthScore)));
 
       return {
         site,
-        score: totalScore,
+        score,
         sunElev: telemetry.sun.elevation,
         earthElev: telemetry.earth.elevation,
         rating: telemetry.windowRating,
       };
     })
-    .sort((a, b) => b.score - a.score);
+    .sort((a, b) => {
+      // Priority 1: Optimal (GO) sites must ALWAYS rank above Marginal and Hazardous
+      const ratingWeight = { optimal: 3, marginal: 2, hazardous: 1 };
+      const ratingDiff = ratingWeight[b.rating] - ratingWeight[a.rating];
+      if (ratingDiff !== 0) return ratingDiff;
+
+      // Priority 2: Higher composite feasibility score
+      if (b.score !== a.score) return b.score - a.score;
+
+      // Priority 3: Higher Sun elevation margin
+      return b.sunElev - a.sunElev;
+    });
 
   return (
     <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-5 shadow-xl space-y-4">
