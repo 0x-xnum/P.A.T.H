@@ -11,10 +11,12 @@ import { StatusCard } from './components/StatusCard';
 import { TimelineControls } from './components/TimelineControls';
 import { SiteLeaderboard } from './components/SiteLeaderboard';
 import { MissionReportModal } from './components/MissionReportModal';
+import { ScienceBriefModal } from './components/ScienceBriefModal';
 
 export default function App() {
   const [selectedSite, setSelectedSite] = useState<LandingSite>(DEFAULT_LANDING_SITE);
   const [isReportOpen, setIsReportOpen] = useState(false);
+  const [isScienceOpen, setIsScienceOpen] = useState(false);
   const [activeViewTab, setActiveViewTab] = useState<'radar' | 'surface'>('radar');
   // Default simulation timestamp: October 15, 2026 at 12:00 UTC (Nominal Artemis III exploration frame)
   const [currentDate, setCurrentDate] = useState<Date>(
@@ -46,6 +48,7 @@ export default function App() {
         currentDate={currentDate}
         selectedSiteName={selectedSite.name}
         onOpenReport={() => setIsReportOpen(true)}
+        onOpenScience={() => setIsScienceOpen(true)}
       />
 
       {/* Main Mission Control Grid */}
@@ -138,6 +141,12 @@ export default function App() {
           site={selectedSite}
           telemetry={telemetry}
           currentDate={currentDate}
+        />
+
+        {/* Scientific Methodology & JPL Benchmark Modal */}
+        <ScienceBriefModal
+          isOpen={isScienceOpen}
+          onClose={() => setIsScienceOpen(false)}
         />
       </main>
 
