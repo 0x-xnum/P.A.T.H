@@ -22,7 +22,7 @@ export const ARTEMIS_2024_REFINED_SITES: LandingSite[] = [
     isOfficialArtemisCandidate: true,
     category: '2024-refined',
     scientificValue: 'Direct access to volatile-rich ejecta deposits excavated from the Cabeus crater interior (site of LCROSS water detection).',
-    officialCitation: 'NASA Press Release 24-142 (Oct 28, 2024)',
+    officialCitation: 'NASA Release 24-136 (Oct 28, 2024)',
   },
   {
     id: 'haworth',
@@ -39,7 +39,7 @@ export const ARTEMIS_2024_REFINED_SITES: LandingSite[] = [
     isOfficialArtemisCandidate: true,
     category: '2024-refined',
     scientificValue: 'Ground-truth sampling of subsurface cryogenic ice deposits and verification of orbital neutron spectrometer anomalies.',
-    officialCitation: 'NASA Press Release 24-142 (Oct 28, 2024)',
+    officialCitation: 'NASA Release 24-136 (Oct 28, 2024)',
   },
   {
     id: 'malapert-massif',
@@ -56,7 +56,7 @@ export const ARTEMIS_2024_REFINED_SITES: LandingSite[] = [
     isOfficialArtemisCandidate: true,
     category: '2024-refined',
     scientificValue: 'Premier regional telecommunications relay benchmark and deep regolith drilling site with panoramic South Pole-Aitken context.',
-    officialCitation: 'NASA Press Release 24-142 (Oct 28, 2024)',
+    officialCitation: 'NASA Release 24-136 (Oct 28, 2024)',
   },
   {
     id: 'mons-mouton-plateau',
@@ -73,7 +73,7 @@ export const ARTEMIS_2024_REFINED_SITES: LandingSite[] = [
     isOfficialArtemisCandidate: true,
     category: '2024-refined',
     scientificValue: 'Ancient pre-Nectarian highland crust exposed by the formation of the South Pole-Aitken (SPA) impact basin.',
-    officialCitation: 'NASA Press Release 24-142 (Oct 28, 2024)',
+    officialCitation: 'NASA Release 24-136 (Oct 28, 2024)',
   },
   {
     id: 'mons-mouton',
@@ -90,7 +90,7 @@ export const ARTEMIS_2024_REFINED_SITES: LandingSite[] = [
     isOfficialArtemisCandidate: true,
     category: '2024-refined',
     scientificValue: 'Investigation of space weathering across steep slope gradients and sampling of ancient volcanic highland breccias.',
-    officialCitation: 'NASA Press Release 24-142 (Oct 28, 2024)',
+    officialCitation: 'NASA Release 24-136 (Oct 28, 2024)',
   },
   {
     id: 'nobile-rim-1',
@@ -107,7 +107,7 @@ export const ARTEMIS_2024_REFINED_SITES: LandingSite[] = [
     isOfficialArtemisCandidate: true,
     category: '2024-refined',
     scientificValue: 'Detailed resource prospecting of micro-cold traps and volatile concentration gradients near shadowed crater floors.',
-    officialCitation: 'NASA Press Release 24-142 (Oct 28, 2024)',
+    officialCitation: 'NASA Release 24-136 (Oct 28, 2024)',
   },
   {
     id: 'nobile-rim-2',
@@ -124,7 +124,7 @@ export const ARTEMIS_2024_REFINED_SITES: LandingSite[] = [
     isOfficialArtemisCandidate: true,
     category: '2024-refined',
     scientificValue: 'Comparative stratigraphy between proximal SPA basin materials and subsequent Copernican-era impact ejecta.',
-    officialCitation: 'NASA Press Release 24-142 (Oct 28, 2024)',
+    officialCitation: 'NASA Release 24-136 (Oct 28, 2024)',
   },
   {
     id: 'de-gerlache-rim-2',
@@ -141,7 +141,7 @@ export const ARTEMIS_2024_REFINED_SITES: LandingSite[] = [
     isOfficialArtemisCandidate: true,
     category: '2024-refined',
     scientificValue: 'Long-duration solar array power collection node and pristine highlands anorthosite sampling.',
-    officialCitation: 'NASA Press Release 24-142 (Oct 28, 2024)',
+    officialCitation: 'NASA Release 24-136 (Oct 28, 2024)',
   },
   {
     id: 'slater-plain',
@@ -158,7 +158,7 @@ export const ARTEMIS_2024_REFINED_SITES: LandingSite[] = [
     isOfficialArtemisCandidate: true,
     category: '2024-refined',
     scientificValue: 'Smooth traverse corridor permitting long-range mobility to multiple permanent shadow boundary zones.',
-    officialCitation: 'NASA Press Release 24-142 (Oct 28, 2024)',
+    officialCitation: 'NASA Release 24-136 (Oct 28, 2024)',
   },
 ];
 

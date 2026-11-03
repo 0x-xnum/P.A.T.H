@@ -81,14 +81,25 @@ export const TimelineControls: React.FC<TimelineControlsProps> = ({
     }
 
     const y = parseInt(match[1], 10);
-    const m = parseInt(match[2], 10) - 1;
+    const m = parseInt(match[2], 10);
     const d = parseInt(match[3], 10);
     const h = match[4] ? parseInt(match[4], 10) : 0;
     const min = match[5] ? parseInt(match[5], 10) : 0;
 
-    const parsedTs = Date.UTC(y, m, d, h, min, 0);
+    if (m < 1 || m > 12 || d < 1 || d > 31 || h < 0 || h > 23 || min < 0 || min > 59) {
+      setInputError('Invalid date/time range');
+      return;
+    }
+
+    const parsedTs = Date.UTC(y, m - 1, d, h, min, 0);
     if (isNaN(parsedTs)) {
       setInputError('Invalid date values');
+      return;
+    }
+
+    const checkDate = new Date(parsedTs);
+    if (checkDate.getUTCMonth() !== m - 1 || checkDate.getUTCDate() !== d) {
+      setInputError('Invalid day for selected month');
       return;
     }
 
@@ -376,16 +387,17 @@ export const TimelineControls: React.FC<TimelineControlsProps> = ({
               <div className="flex gap-2">
                 <input
                   id="manual-epoch-input"
-                  type="datetime-local"
+                  type="text"
+                  placeholder="YYYY-MM-DDTHH:mm"
                   value={inputVal}
                   onChange={(e) => setInputVal(e.target.value)}
-                  className="flex-1 bg-slate-900 border border-slate-700 rounded px-2.5 py-1 text-xs font-mono text-sky-200 focus:outline-none focus:border-sky-400"
+                  className="flex-1 bg-slate-900 border border-slate-700 rounded px-2.5 py-1 text-xs font-mono text-sky-200 focus:outline-none focus:border-sky-400 placeholder:text-slate-600"
                 />
                 <button
                   type="submit"
                   className="px-3 py-1 bg-sky-600 hover:bg-sky-500 text-white rounded text-xs font-mono font-semibold transition-colors"
                 >
-                  SET
+                  SET UTC
                 </button>
               </div>
               {inputError && (
@@ -395,7 +407,7 @@ export const TimelineControls: React.FC<TimelineControlsProps> = ({
           </div>
 
           <p className="text-[10px] font-mono text-slate-500 mt-2">
-            Exact topocentric ephemeris &amp; line-of-sight evaluated instantly upon entry.
+            Analytical topocentric ephemeris &amp; line-of-sight evaluated in universal time (UTC).
           </p>
         </div>
       </div>

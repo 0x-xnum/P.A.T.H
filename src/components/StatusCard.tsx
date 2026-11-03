@@ -1,6 +1,6 @@
 import React from 'react';
 import { TelemetrySample } from '../types';
-import { SOLAR_CONSTANT_W_M2 } from '../utils/analyzer';
+import { SOLAR_CONSTANT_W_M2, calculatePhotovoltaicPowerWatts } from '../utils/analyzer';
 
 interface StatusCardProps {
   telemetry: TelemetrySample;
@@ -15,9 +15,10 @@ export const StatusCard: React.FC<StatusCardProps> = ({
 }) => {
   const { windowRating, solarIlluminationFraction, dteStatus, sun, earth, reasons } = telemetry;
 
-  // Compute estimated incident solar power on a standard 10 m^2 vertical solar array (4-sided polar configuration)
+  // Compute estimated incident solar power on a standard 10 m^2 multi-sided vertical polar array
+  // Omnidirectional projected aperture factor (A / π ≈ 3.18 m² effective cross-section facing Sun)
   const solarFlux = Math.round(solarIlluminationFraction * SOLAR_CONSTANT_W_M2);
-  const totalPowerWatts = Math.round(solarFlux * 10 * 0.32); // 32% high-efficiency triple-junction cells
+  const totalPowerWatts = calculatePhotovoltaicPowerWatts(solarIlluminationFraction, sun.elevation);
 
   const sunClearance = sun.elevation - sunTerrainCutoff;
   const earthClearance = earth.elevation - earthTerrainCutoff;
@@ -68,7 +69,7 @@ export const StatusCard: React.FC<StatusCardProps> = ({
         <div className="bg-[#060a12] border border-[#172235] p-3 rounded-md space-y-2">
           <div className="text-amber-400 font-semibold flex items-center justify-between text-[11px]">
             <span>⚡ PHOTOVOLTAIC YIELD</span>
-            <span className="text-[10px] text-slate-500">10m² Array</span>
+            <span className="text-[10px] text-slate-500">10m² Polar Array</span>
           </div>
           <div className="text-xl sm:text-2xl font-bold text-slate-100">
             {totalPowerWatts} <span className="text-xs font-normal text-slate-400">Watts</span>
@@ -77,6 +78,10 @@ export const StatusCard: React.FC<StatusCardProps> = ({
             <div className="flex justify-between">
               <span>Incident AM0 Flux:</span>
               <span className="text-slate-200">{solarFlux} W/m²</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Projected Aperture:</span>
+              <span className="text-slate-300">3.18 m² (A/π)</span>
             </div>
             <div className="flex justify-between">
               <span>Sun Elevation:</span>

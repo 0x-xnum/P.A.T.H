@@ -5,9 +5,12 @@ export interface HorizonProfile {
   azimuthMasks: number[]; 
 }
 
-// Topographic horizon elevation profiles derived from NASA Lunar Reconnaissance Orbiter (LRO)
-// LOLA Digital Elevation Model (DEM) 20m/pixel polar products.
-// Positive values indicate terrain ridges protruding above the mathematical 0° horizontal plane.
+// Topographic horizon elevation profiles:
+// Synthetic 24-point azimuthal horizon elevation profiles parameterized from NASA Lunar
+// Reconnaissance Orbiter (LRO) LOLA Digital Elevation Model (DEM) regional slope and relief
+// models (512 px/deg polar products).
+// Positive values indicate terrain obstacle elevations (in degrees) required to clear local ridges.
+// Custom user-defined landing coordinates utilize a standard polar crater rim baseline (+1.5°).
 export const LOLA_HORIZON_PROFILES: Record<string, HorizonProfile> = {
   // 1. Peak near Cabeus B: Elevated rim section with low northern obstruction but moderate southern ridge
   'peak-near-cabeus-b': {

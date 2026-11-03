@@ -267,23 +267,23 @@ export const HorizonRadar: React.FC<HorizonRadarProps> = ({
   const currentEarthMask = getTerrainElevationCutoff(siteId, earthPosition.azimuth);
 
   return (
-    <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-5 shadow-xl flex flex-col items-center">
+    <div className="bg-[#090e18] border border-[#1b263b] rounded-lg p-3.5 flex flex-col items-center font-mono">
       <div className="w-full flex items-center justify-between mb-2">
         <div>
-          <h2 className="text-sm font-semibold tracking-wide text-slate-300 uppercase font-mono">
-            360° Lunar Horizon Radar
+          <h2 className="text-xs font-bold tracking-wider text-slate-300 uppercase">
+            360° SKY HORIZON RADAR
           </h2>
-          <p className="text-xs text-slate-500 font-mono">
-            LOLA Topographic Profile Overlay for <span className="text-sky-400 font-semibold">{siteName}</span>
+          <p className="text-[10px] text-slate-500">
+            LOLA Horizon Mask Profile for <span className="text-sky-400 font-semibold">{siteName}</span>
           </p>
         </div>
-        <div className="flex items-center gap-3 text-xs font-mono">
+        <div className="flex items-center gap-3 text-[10px]">
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block shadow-[0_0_8px_rgba(251,191,36,0.6)]" />
+            <span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />
             <span className="text-slate-300">SUN</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 inline-block shadow-[0_0_8px_rgba(34,211,238,0.6)]" />
+            <span className="w-2 h-2 rounded-full bg-cyan-400 inline-block" />
             <span className="text-slate-300">EARTH</span>
           </div>
         </div>
@@ -293,19 +293,19 @@ export const HorizonRadar: React.FC<HorizonRadarProps> = ({
         <canvas
           ref={canvasRef}
           style={{ width: 520, height: 520 }}
-          className="rounded-full border border-slate-800/80 max-w-full h-auto shadow-2xl bg-slate-950"
+          className="rounded-full border border-[#1b263b] max-w-full h-auto bg-[#050810]"
         />
       </div>
 
-      <div className="w-full grid grid-cols-2 gap-3 mt-3 pt-3 border-t border-slate-800/80 text-xs font-mono">
-        <div className="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800">
-          <div className="text-amber-400 font-semibold mb-1 flex items-center justify-between">
+      <div className="w-full grid grid-cols-2 gap-2.5 mt-2 pt-2 border-t border-[#1b263b] text-xs font-mono">
+        <div className="bg-[#060a12] p-2.5 rounded-md border border-[#172235]">
+          <div className="text-amber-400 font-semibold mb-1 flex items-center justify-between text-[11px]">
             <span>☀️ SOLAR VISIBILITY</span>
             <span className={sunPosition.isVisible ? 'text-emerald-400 text-[10px]' : 'text-rose-400 text-[10px]'}>
               {sunPosition.isVisible ? 'CLEAR OF TERRAIN' : 'TERRAIN OCCLUDED'}
             </span>
           </div>
-          <div className="text-slate-400 text-[11px] space-y-0.5">
+          <div className="text-slate-400 text-[10px] space-y-0.5">
             <div className="flex justify-between">
               <span>Elevation:</span>
               <span className="text-slate-200">{sunPosition.elevation.toFixed(2)}°</span>
@@ -316,7 +316,7 @@ export const HorizonRadar: React.FC<HorizonRadarProps> = ({
             </div>
             <div className="flex justify-between">
               <span>Terrain Clearance Margin:</span>
-              <span className={sunPosition.elevation - currentSunMask > 0 ? 'text-emerald-400' : 'text-rose-400'}>
+              <span className={sunPosition.elevation - currentSunMask > 0 ? 'text-emerald-400 font-semibold' : 'text-rose-400 font-semibold'}>
                 {(sunPosition.elevation - currentSunMask > 0 ? '+' : '')}
                 {(sunPosition.elevation - currentSunMask).toFixed(2)}°
               </span>
@@ -324,14 +324,14 @@ export const HorizonRadar: React.FC<HorizonRadarProps> = ({
           </div>
         </div>
 
-        <div className="bg-slate-950/60 p-2.5 rounded-lg border border-slate-800">
-          <div className="text-cyan-400 font-semibold mb-1 flex items-center justify-between">
+        <div className="bg-[#060a12] p-2.5 rounded-md border border-[#172235]">
+          <div className="text-cyan-400 font-semibold mb-1 flex items-center justify-between text-[11px]">
             <span>🌍 DTE LINE-OF-SIGHT</span>
             <span className={earthPosition.isVisible ? 'text-emerald-400 text-[10px]' : 'text-rose-400 text-[10px]'}>
               {earthPosition.isVisible ? 'LINE-OF-SIGHT OPEN' : 'TERRAIN OCCLUDED'}
             </span>
           </div>
-          <div className="text-slate-400 text-[11px] space-y-0.5">
+          <div className="text-slate-400 text-[10px] space-y-0.5">
             <div className="flex justify-between">
               <span>Elevation:</span>
               <span className="text-slate-200">{earthPosition.elevation.toFixed(2)}°</span>
@@ -342,7 +342,7 @@ export const HorizonRadar: React.FC<HorizonRadarProps> = ({
             </div>
             <div className="flex justify-between">
               <span>Terrain Clearance Margin:</span>
-              <span className={earthPosition.elevation - currentEarthMask > 0 ? 'text-emerald-400' : 'text-rose-400'}>
+              <span className={earthPosition.elevation - currentEarthMask > 0 ? 'text-emerald-400 font-semibold' : 'text-rose-400 font-semibold'}>
                 {(earthPosition.elevation - currentEarthMask > 0 ? '+' : '')}
                 {(earthPosition.elevation - currentEarthMask).toFixed(2)}°
               </span>

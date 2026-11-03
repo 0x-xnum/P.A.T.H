@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { LandingSite, TelemetrySample } from '../types';
 import { formatCoordinates } from '../utils/coordinates';
-import { SOLAR_CONSTANT_W_M2, evaluateWindowForecast } from '../utils/analyzer';
+import { evaluateWindowForecast, calculatePhotovoltaicPowerWatts } from '../utils/analyzer';
 
 interface MissionReportModalProps {
   isOpen: boolean;
@@ -95,15 +95,17 @@ export const MissionReportModal: React.FC<MissionReportModalProps> = ({
     const totalSamples = samples.length;
 
     if (selectedDuration === 'instant') {
-      const solarFlux = Math.round(telemetry.solarIlluminationFraction * SOLAR_CONSTANT_W_M2);
-      const instantPowerWatts = Math.round(solarFlux * 10 * 0.32);
+      const instantPowerWatts = calculatePhotovoltaicPowerWatts(
+        telemetry.solarIlluminationFraction,
+        telemetry.sun.elevation
+      );
       return {
         totalHours: 0,
         totalSamples: 1,
         sunlitPercent: telemetry.solarIlluminationFraction > 0 ? 100 : 0,
         dtePercent: telemetry.dteStatus === 'connected' ? 100 : telemetry.dteStatus === 'marginal' ? 50 : 0,
         longestGoHours: telemetry.windowRating === 'optimal' ? 1 : 0,
-        cumulativeKWh: Number(((instantPowerWatts / 1000) * 1).toFixed(1)),
+        cumulativeKWh: Number(((instantPowerWatts / 1000) * 1).toFixed(2)),
         minPowerWatts: instantPowerWatts,
         maxPowerWatts: instantPowerWatts,
         avgPowerWatts: instantPowerWatts,
@@ -123,7 +125,6 @@ export const MissionReportModal: React.FC<MissionReportModalProps> = ({
 
     let sunlitCount = 0;
     let dteSafeCount = 0;
-    let totalKWh = 0;
     let minPower = Infinity;
     let maxPower = -Infinity;
     let sumPower = 0;
@@ -136,13 +137,15 @@ export const MissionReportModal: React.FC<MissionReportModalProps> = ({
     let minSunElevation = Infinity;
     let maxSunElevation = -Infinity;
 
-    // Continuous streak calculations
+    // Continuous safe streak tracking
     let currentStreak = 0;
     let maxStreak = 0;
 
-    samples.forEach((sample) => {
-      const flux = Math.round(sample.solarIlluminationFraction * SOLAR_CONSTANT_W_M2);
-      const power = Math.round(flux * 10 * 0.32);
+    const samplePowers = samples.map((sample) => {
+      const power = calculatePhotovoltaicPowerWatts(
+        sample.solarIlluminationFraction,
+        sample.sun.elevation
+      );
       sumPower += power;
       minPower = Math.min(minPower, power);
       maxPower = Math.max(maxPower, power);
@@ -151,9 +154,6 @@ export const MissionReportModal: React.FC<MissionReportModalProps> = ({
       maxEarthElevation = Math.max(maxEarthElevation, sample.earth.elevation);
       minSunElevation = Math.min(minSunElevation, sample.sun.elevation);
       maxSunElevation = Math.max(maxSunElevation, sample.sun.elevation);
-
-      // Energy = kW * stepHours
-      totalKWh += (power / 1000) * stepHours;
 
       if (sample.solarIlluminationFraction > 0) {
         sunlitCount++;
@@ -176,7 +176,15 @@ export const MissionReportModal: React.FC<MissionReportModalProps> = ({
           marginalCount++;
         }
       }
+      return power;
     });
+
+    // Rigorous numerical integration using the Trapezoidal Rule across N-1 time intervals
+    let totalKWh = 0;
+    for (let i = 0; i < samplePowers.length - 1; i++) {
+      const avgIntervalPowerWatts = (samplePowers[i] + samplePowers[i + 1]) / 2;
+      totalKWh += (avgIntervalPowerWatts / 1000) * stepHours;
+    }
 
     const sunlitPercent = Math.round((sunlitCount / totalSamples) * 100);
     const dtePercent = Math.round((dteSafeCount / totalSamples) * 100);
@@ -239,12 +247,12 @@ export const MissionReportModal: React.FC<MissionReportModalProps> = ({
 
   const handleDownloadJSON = () => {
     const reportPayload = {
-      agency: 'National Aeronautics and Space Administration (NASA)',
-      directorate: 'Exploration Systems Development Directorate (ESDD)',
-      program: 'Artemis Lunar Surface Exploration Program // Artemis III',
-      documentId: `NASA-STD-ART3-DISPATCH-${site.designation}`,
-      classification: 'UNCLASSIFIED // NASA SPACE APPS CHALLENGE BENCHMARK',
-      generatedBy: 'Project P.A.T.H. (Polar Artemis Telemetry & Horizon-Planner)',
+      project: 'Project P.A.T.H. (Polar Artemis Telemetry & Horizon-Planner)',
+      challenge: 'NASA Space Apps Challenge 2026 - Lunar Landing Site Navigator',
+      event: 'Cairo Local Event (IEEE Egypt Section / Elsewedy University of Technology)',
+      documentRef: `PATH-ART3-SCREENING-${site.designation}`,
+      classification: 'INDEPENDENT STUDY // EDUCATIONAL SCREENING PROTOTYPE',
+      disclaimer: 'Independent prototype developed for NASA Space Apps 2026. Not an official NASA flight dynamics dispatch tool.',
       generationTimestampUtc: new Date().toISOString(),
       evaluationStartUtc: currentDate.toISOString(),
       evaluationDuration: activeDurationConfig.label,
@@ -263,10 +271,10 @@ export const MissionReportModal: React.FC<MissionReportModalProps> = ({
       cumulativeViabilityScorecard: {
         flightVerdict:
           windowMetrics.overallRating === 'optimal'
-            ? 'MISSION GO FOR DESCENT'
+            ? 'NOMINAL SCREENING WINDOW'
             : windowMetrics.overallRating === 'marginal'
-            ? 'CAUTION: MARGINAL OPERATIONAL WINDOW'
-            : 'MISSION NO-GO: OCCLUSION HAZARD DETECTED',
+            ? 'ADVISORY: MARGINAL OPERATIONAL WINDOW'
+            : 'HAZARD: OCCLUSION / COMMS BLACKOUT DETECTED',
         totalEvaluatedHours: windowMetrics.totalHours,
         solarIlluminationUptimePercent: windowMetrics.sunlitPercent,
         directToEarthCommsUptimePercent: windowMetrics.dtePercent,
@@ -288,9 +296,8 @@ export const MissionReportModal: React.FC<MissionReportModalProps> = ({
     downloadAnchor.setAttribute('href', dataStr);
     downloadAnchor.setAttribute(
       'download',
-      `NASA_Artemis_Brief_${site.designation}_${selectedDuration}_${currentDate.toISOString().slice(0, 10)}.json`
+      `PATH_Artemis_Brief_${site.designation}_${selectedDuration}_${currentDate.toISOString().slice(0, 10)}.json`
     );
-    document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
   };
@@ -302,25 +309,25 @@ export const MissionReportModal: React.FC<MissionReportModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
       <div className="bg-slate-950 border border-slate-700/80 rounded-2xl max-w-4xl w-full p-5 sm:p-8 shadow-2xl space-y-6 max-h-[92vh] overflow-y-auto print:max-h-none print:overflow-visible print:border-none print:shadow-none print:p-0 print:bg-white print:text-black">
-        {/* NASA Official Header Document Block */}
+        {/* Header Document Block */}
         <div className="border-b-2 border-slate-700 pb-5 print:border-black">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 font-bold border border-sky-400/40 print:border-black print:text-black print:bg-slate-100">
-                  NATIONAL AERONAUTICS AND SPACE ADMINISTRATION
+                  PROJECT P.A.T.H. • NASA SPACE APPS 2026
                 </span>
                 <span className="text-[10px] font-mono text-slate-400 print:text-black">
-                  EXPLORATION SYSTEMS DEVELOPMENT DIRECTORATE
+                  INDEPENDENT LUNAR SCREENING PROTOTYPE
                 </span>
               </div>
               <h1 className="text-xl sm:text-2xl font-black font-mono tracking-tight text-white mt-1.5 print:text-black">
-                ARTEMIS III LUNAR SURFACE DISPATCH BRIEF
+                ARTEMIS III LUNAR SURFACE SCREENING BRIEF
               </h1>
               <div className="text-xs font-mono text-slate-400 mt-0.5 print:text-black">
-                DOCUMENT ID:{' '}
+                REPORT REF:{' '}
                 <span className="text-sky-400 font-bold print:text-black">
-                  NASA-STD-ART3-DISPATCH-{site.designation}
+                  PATH-ART3-SCREENING-{site.designation}
                 </span>{' '}
                 • REV: 2026.4
               </div>
@@ -339,7 +346,7 @@ export const MissionReportModal: React.FC<MissionReportModalProps> = ({
                 </div>
               )}
               <div className="text-[10px] text-slate-500 font-mono mt-0.5 print:text-black">
-                STATUS: UNCLASSIFIED // PUBLIC RELEASE
+                STATUS: INDEPENDENT OPEN STUDY // SPACE APPS CAIRO
               </div>
             </div>
           </div>
@@ -385,7 +392,7 @@ export const MissionReportModal: React.FC<MissionReportModalProps> = ({
           </div>
         </div>
 
-        {/* Flight Dynamics Officer (FDO) Recommendation Verdict Banner */}
+        {/* Tactical Mission Screening Verdict Banner */}
         <div
           className={`p-4 rounded-xl border-2 text-center font-mono transition-colors ${
             windowMetrics.overallRating === 'optimal'
@@ -396,23 +403,23 @@ export const MissionReportModal: React.FC<MissionReportModalProps> = ({
           }`}
         >
           <div className="flex items-center justify-center gap-2 text-xs uppercase tracking-widest font-black">
-            <span>FLIGHT DYNAMICS DISPATCH VERDICT</span>
+            <span>TACTICAL MISSION SCREENING VERDICT</span>
             <span>•</span>
             <span>{activeDurationConfig.label.toUpperCase()} WINDOW</span>
           </div>
           <div className="text-xl sm:text-2xl font-black mt-1">
             {windowMetrics.overallRating === 'optimal'
-              ? 'MISSION GO FOR DESCENT & SUSTAINED OPERATIONS'
+              ? 'TACTICAL SCREENING: NOMINAL ILLUMINATION & DTE VISIBILITY'
               : windowMetrics.overallRating === 'marginal'
-              ? 'CAUTION: MARGINAL SOLAR CLEARANCE / MULTIPATH RF RISK'
-              : 'MISSION NO-GO: OCCLUSION / COMMS BLACKOUT HAZARD DETECTED'}
+              ? 'TACTICAL SCREENING: ADVISORY (GRAZING SOLAR / MARGINAL COMMS)'
+              : 'TACTICAL SCREENING: OCCLUSION / COMMS BLACKOUT HAZARD'}
           </div>
           <p className="text-xs mt-1.5 opacity-90 max-w-2xl mx-auto font-sans print:font-mono">
             {windowMetrics.overallRating === 'optimal'
-              ? `Site provides continuous solar clearance over local LOLA ridge profiles with persistent Direct-to-Earth line-of-sight across ${activeDurationConfig.label}. Nominal for Artemis III crewed surface stay.`
+              ? `Site provides continuous solar clearance over local LOLA ridge profiles with persistent geometric Direct-to-Earth line-of-sight across ${activeDurationConfig.label}. Nominal for Artemis III crewed surface stay.`
               : windowMetrics.overallRating === 'marginal'
-              ? `Low-elevation grazing solar path or marginal Earth elevation detected during window. Supplementary battery reserves and orbital relay readiness required.`
-              : `Site experiences terrain occlusion or line-of-sight blackout behind crater rim masks. High hazard of thermal freeze and telecommunication loss.`}
+              ? `Low-elevation grazing solar path or marginal Earth elevation detected during window. Supplementary battery reserves and orbital relay readiness recommended.`
+              : `Site experiences terrain occlusion or line-of-sight blackout behind crater rim obstacle masks. Risk of thermal freeze and telecommunication outage.`}
           </p>
         </div>
 
@@ -592,8 +599,10 @@ export const MissionReportModal: React.FC<MissionReportModalProps> = ({
                 {waypointsToDisplay.map((item, i) => {
                   const s = 'sample' in item ? item.sample : item;
                   const met = 'metHours' in item ? `T+${item.metHours}h` : 'T+00h';
-                  const flux = Math.round(s.solarIlluminationFraction * SOLAR_CONSTANT_W_M2);
-                  const pwr = Math.round(flux * 10 * 0.32);
+                  const pwr = calculatePhotovoltaicPowerWatts(
+                    s.solarIlluminationFraction,
+                    s.sun.elevation
+                  );
 
                   return (
                     <tr
@@ -647,17 +656,13 @@ export const MissionReportModal: React.FC<MissionReportModalProps> = ({
           </div>
         </div>
 
-        {/* NASA Topographic & Scientific Methodology Footnote */}
+        {/* Topographic & Scientific Methodology Footnote */}
         <div className="space-y-1.5 font-mono text-xs bg-slate-900/40 p-3 rounded-lg border border-slate-800 print:bg-slate-100 print:border-black">
           <div className="text-slate-400 uppercase tracking-wider font-semibold text-[10px] print:text-black">
-            Verification Baseline & Ephemeris Integrity
+            Methodology &amp; Simulation Prototype Disclaimers
           </div>
           <p className="text-[10px] text-slate-400 leading-relaxed print:text-black">
-            Topographic horizon masks extracted from NASA Lunar Reconnaissance Orbiter (LRO) LOLA digital
-            elevation models (512 px/deg). Celestial solar and terrestrial coordinates computed via
-            analytical ephemeris benchmarked against NASA JPL Horizons DE441 (Lunar Reference Frame PA440,
-            &lt; 0.4° absolute error). Photovoltaic estimates utilize standard AM0 solar constant (1361 W/m²)
-            for a 10m² vertical array at 32% triple-junction conversion efficiency.
+            <strong>Educational Prototype Notice:</strong> Project P.A.T.H. is an independent interactive simulation tool developed for the NASA Space Apps Challenge 2026. It is not an official NASA flight dynamics system. Celestial positions are generated via an analytical client-side ephemeris calibrated against NASA JPL Horizons DE441 (&lt; 0.5° mean error). Horizon obstacle profiles are synthetic 24-point azimuth masks parameterized from NASA LRO LOLA polar DEM data (512 px/deg). Power generation models an omnidirectional 10m² multi-faceted vertical polar array (3.18 m² projected cross-section, 32% efficiency) under AM0 flux (1361 W/m²). Direct-to-Earth visibility evaluates geometric line-of-sight above obstacle profiles, excluding RF antenna patterns and space network link margins.
           </p>
         </div>
 

@@ -26,17 +26,17 @@ export const Header: React.FC<HeaderProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-sky-950/80 text-sky-300 font-bold border border-sky-800/60 uppercase tracking-wider">
-                NASA ARTEMIS III
+                SPACE APPS 2026
               </span>
               <h1 className="text-sm sm:text-base font-bold font-mono tracking-tight text-slate-100">
                 PROJECT P.A.T.H.
               </h1>
               <span className="hidden sm:inline-block text-[10px] font-mono text-slate-500">
-                MOD-OPS // REV 2026.4
+                LUNAR NAVIGATOR // REV 2026.4
               </span>
             </div>
             <p className="text-[11px] font-mono text-slate-400">
-              Polar Artemis Telemetry &amp; Horizon-Planner • OpenMCT Console
+              Polar Artemis Telemetry &amp; Horizon-Planner • Mission Screening Console
             </p>
           </div>
         </div>

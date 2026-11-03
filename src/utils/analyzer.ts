@@ -9,6 +9,11 @@ import { getSunPosition, getEarthPosition } from './ephemeris';
 import { getTerrainElevationCutoff } from '../data/terrainMasks';
 
 export const SOLAR_CONSTANT_W_M2 = 1361;
+export const TOTAL_ARRAY_AREA_M2 = 10; // Total collector area of multi-sided vertical polar array
+export const ARRAY_EFFICIENCY = 0.32; // 32% high-efficiency triple-junction space-grade photovoltaic cells
+// For an omnidirectional cylindrical/multi-faceted vertical array of total area A,
+// the effective cross-sectional projected aperture facing the Sun at any azimuth is A / π (~0.3183)
+export const OMNI_VERTICAL_PROJECTION_FACTOR = 1 / Math.PI;
 
 export function calculateSolarIlluminationFraction(
   sunPosition: CelestialBodyPosition,
@@ -18,9 +23,19 @@ export function calculateSolarIlluminationFraction(
     return 0;
   }
   const elevationRad = (sunPosition.elevation * Math.PI) / 180;
-  // Models vertical polar array capture factor
+  // Models grazing elevation projection factor on vertical array surfaces
   const verticalPanelFactor = Math.cos(elevationRad);
   return Number(Math.min(1.0, Math.max(0.0, verticalPanelFactor)).toFixed(3));
+}
+
+export function calculatePhotovoltaicPowerWatts(
+  solarIlluminationFraction: number,
+  sunElevationDeg: number
+): number {
+  if (solarIlluminationFraction <= 0) return 0;
+  const elevationRad = (Math.max(0, sunElevationDeg) * Math.PI) / 180;
+  const effectiveProjectedAreaM2 = TOTAL_ARRAY_AREA_M2 * OMNI_VERTICAL_PROJECTION_FACTOR * Math.cos(elevationRad);
+  return Math.round(SOLAR_CONSTANT_W_M2 * effectiveProjectedAreaM2 * ARRAY_EFFICIENCY);
 }
 
 export function evaluateDteLinkStatus(
