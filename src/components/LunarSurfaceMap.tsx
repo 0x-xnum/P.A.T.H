@@ -312,41 +312,6 @@ export const LunarSurfaceMap: React.FC<LunarSurfaceMapProps> = ({
 
     if (nearestSite) {
       onSelectSite(nearestSite);
-    } else {
-      // User clicked on open terrain: Drop a custom tactical target pin!
-      const dx = actualX - centerX;
-      const dy = actualY - centerY;
-      const clickDist = Math.hypot(dx, dy);
-
-      if (clickDist <= maxRadius) {
-        // Inverse stereographic projection:
-        const latVal = -(90 - (clickDist / maxRadius) * 7);
-
-        const angleRad = Math.atan2(dy, dx);
-        let lonDeg = (angleRad * 180) / Math.PI + 90;
-        if (lonDeg < 0) lonDeg += 360;
-        if (lonDeg >= 360) lonDeg -= 360;
-
-        const customTargetSite: LandingSite = {
-          id: `custom-map-${Date.now()}`,
-          name: `Pin (${Math.abs(latVal).toFixed(2)}°S, ${lonDeg.toFixed(1)}°E)`,
-          designation: `MAP-TGT-${(customSites.length + 1).toString().padStart(2, '0')}`,
-          coordinates: {
-            latitude: parseFloat(latVal.toFixed(3)),
-            longitude: parseFloat(lonDeg.toFixed(3)),
-            elevationMeters: 1000,
-          },
-          description: `Custom waypoint designated via 2D Lunar South Pole stereographic map targeting.`,
-          rimHeightMeters: 1800,
-          permanentlyShadowedNearby: Math.abs(latVal) > 86,
-          isOfficialArtemisCandidate: false,
-          category: 'custom',
-          scientificValue: 'Arbitrary exploration waypoint targeted on polar stereographic surface projection.',
-          officialCitation: 'Interactive Surface Map Targeting',
-        };
-
-        onSelectSite(customTargetSite);
-      }
     }
   };
 
@@ -377,7 +342,7 @@ export const LunarSurfaceMap: React.FC<LunarSurfaceMapProps> = ({
         </div>
       </div>
 
-      <div className="relative my-2 cursor-crosshair">
+      <div className="relative my-2 cursor-pointer">
         <canvas
           ref={canvasRef}
           style={{ width: 520, height: 520 }}
@@ -387,7 +352,7 @@ export const LunarSurfaceMap: React.FC<LunarSurfaceMapProps> = ({
       </div>
 
       <div className="w-full text-center text-xs font-mono text-slate-400 mt-2 flex flex-col sm:flex-row items-center justify-between gap-2 px-2">
-        <span>Click any marker to inspect, or click anywhere on the Moon to drop a persistent target pin</span>
+        <span>Click any candidate or custom marker to inspect its local horizon radar &amp; telemetry</span>
         <span className="text-sky-400 font-semibold">{selectedSite.name}</span>
       </div>
     </div>

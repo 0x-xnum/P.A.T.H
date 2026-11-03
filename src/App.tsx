@@ -46,21 +46,16 @@ export default function App() {
     setSelectedSite(site);
   };
 
+  const handleUpdateCustomSite = (site: LandingSite) => {
+    setCustomSites((prev) => prev.map((s) => (s.id === site.id ? site : s)));
+    setSelectedSite(site);
+  };
+
   const handleDeleteCustomSite = (siteId: string) => {
     setCustomSites((prev) => prev.filter((s) => s.id !== siteId));
     if (selectedSite.id === siteId) {
       setSelectedSite(DEFAULT_LANDING_SITE);
     }
-  };
-
-  const handleSelectOrAddSite = (site: LandingSite) => {
-    if (site.category === 'custom') {
-      setCustomSites((prev) => {
-        const exists = prev.some((s) => s.id === site.id);
-        return exists ? prev : [site, ...prev];
-      });
-    }
-    setSelectedSite(site);
   };
 
   // Default simulation timestamp: October 15, 2026 at 12:00 UTC (Nominal Artemis III exploration frame)
@@ -103,9 +98,10 @@ export default function App() {
           <div className="lg:col-span-5 space-y-6">
             <SiteSelector
               selectedSite={selectedSite}
-              onSelectSite={handleSelectOrAddSite}
+              onSelectSite={setSelectedSite}
               customSites={customSites}
               onCreateCustomSite={handleCreateCustomSite}
+              onUpdateCustomSite={handleUpdateCustomSite}
               onDeleteCustomSite={handleDeleteCustomSite}
               showArchived2022={showArchived2022}
               onToggleArchived2022={setShowArchived2022}
@@ -160,7 +156,7 @@ export default function App() {
               <LunarSurfaceMap
                 currentDate={currentDate}
                 selectedSite={selectedSite}
-                onSelectSite={handleSelectOrAddSite}
+                onSelectSite={setSelectedSite}
                 customSites={customSites}
                 showArchived2022={showArchived2022}
               />
@@ -179,7 +175,7 @@ export default function App() {
         <SiteLeaderboard
           currentDate={currentDate}
           selectedSiteId={selectedSite.id}
-          onSelectSite={handleSelectOrAddSite}
+          onSelectSite={setSelectedSite}
           customSites={customSites}
           showArchived2022={showArchived2022}
         />
