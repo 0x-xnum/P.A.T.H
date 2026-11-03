@@ -7,17 +7,15 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Inter', sans-serif;
-      background-color: #07090e;
-      color: #f1f5f9;
+      background-color: #06080c;
+      color: #f8fafc;
       overflow: hidden;
       user-select: none;
     }
-    .font-mono { font-family: 'JetBrains Mono', monospace; }
-    .font-tech { font-family: 'Chakra Petch', sans-serif; }
     .slide {
       display: none;
       height: 100vh;
@@ -26,36 +24,26 @@
     .slide.active {
       display: flex;
     }
-    .technical-card {
-      background: #0f1420;
-      border: 1px solid #1f2a3e;
-    }
-    .glow-cyan {
-      box-shadow: 0 0 20px rgba(56, 189, 248, 0.15);
-    }
-    .glow-amber {
-      box-shadow: 0 0 20px rgba(245, 158, 11, 0.15);
-    }
   </style>
 </head>
-<body class="bg-[#07090e] text-slate-100 flex flex-col h-screen">
+<body class="bg-[#06080c] text-slate-100 flex flex-col h-screen">
 
-  <!-- Top Telemetry Header -->
-  <header class="h-10 bg-[#0a0d14] border-b border-[#1b2434] px-6 flex items-center justify-between text-xs font-mono text-slate-400 shrink-0">
+  <!-- Top Minimalist Bar -->
+  <header class="h-10 border-b border-[#1c2432] px-8 flex items-center justify-between text-xs text-slate-400 shrink-0">
     <div class="flex items-center space-x-3">
-      <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-      <span class="text-sky-400 font-bold tracking-wider">PROJECT P.A.T.H.</span>
-      <span class="text-slate-600">//</span>
+      <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
+      <span class="text-white font-bold tracking-wider">PROJECT P.A.T.H.</span>
+      <span class="text-slate-600">/</span>
       <span>NASA SPACE APPS CAIRO 2026</span>
-      <span class="text-slate-600">//</span>
-      <span class="text-amber-400 font-semibold">TRACK: LUNAR LANDING SITE NAVIGATOR</span>
+      <span class="text-slate-600">/</span>
+      <span class="text-amber-400 font-medium">CHALLENGE: LUNAR LANDING SITE NAVIGATOR</span>
     </div>
     <div class="flex items-center space-x-4">
-      <span id="slideIndicator" class="text-sky-300 font-bold">SLIDE 01 / 06</span>
-      <button onclick="toggleNotes()" class="px-2.5 py-1 bg-[#172033] hover:bg-sky-900/40 text-sky-400 rounded text-[11px] border border-sky-800 transition">
+      <span id="slideIndicator" class="text-slate-400 font-mono text-[11px]">01 / 06</span>
+      <button onclick="toggleNotes()" class="px-2.5 py-1 bg-[#121722] hover:bg-slate-800 text-slate-300 rounded text-[11px] border border-slate-700 transition">
         Speaker Notes (N)
       </button>
-      <button onclick="toggleFullscreen()" class="px-2.5 py-1 bg-[#172033] hover:bg-slate-700 text-slate-200 rounded text-[11px] border border-slate-700 transition">
+      <button onclick="toggleFullscreen()" class="px-2.5 py-1 bg-[#121722] hover:bg-slate-800 text-slate-300 rounded text-[11px] border border-slate-700 transition">
         Fullscreen (F)
       </button>
     </div>
@@ -64,325 +52,339 @@
   <!-- Slide Canvas -->
   <main class="flex-1 relative flex overflow-hidden">
 
-    <!-- ==================== SLIDE 1 ==================== -->
-    <div class="slide active flex-col p-10 justify-between" id="slide-1">
-      <div class="grid grid-cols-12 gap-8 h-full items-center">
-        <!-- Left 7 Cols: Typography & Flight Data -->
-        <div class="col-span-7 flex flex-col justify-center space-y-4">
-          <div class="font-mono text-xs text-sky-400 tracking-widest uppercase">MISSION OPERATIONAL DIRECTIVE // FLIGHT READINESS REVIEW</div>
+    <!-- ==================== SLIDE 1: THE TITLE & HUMAN HOOK ==================== -->
+    <div class="slide active flex-col px-14 py-10 justify-between" id="slide-1">
+      <div class="grid grid-cols-12 gap-12 h-full items-center">
+        <!-- Left: Editorial Typography & Mission Contrast -->
+        <div class="col-span-7 flex flex-col justify-center space-y-6">
+          <div class="text-xs font-mono font-bold tracking-widest text-sky-400 uppercase">
+            NASA SPACE APPS CAIRO 2026 • LUNAR LANDING SITE NAVIGATOR
+          </div>
           <div>
-            <h1 class="text-5xl font-tech font-bold tracking-tight text-white mb-1">PROJECT P.A.T.H.</h1>
-            <h2 class="text-xl font-tech font-semibold text-amber-400 tracking-wide">POLAR ARTEMIS TELEMETRY &amp; HORIZON-PLANNER</h2>
-            <p class="text-slate-400 text-sm mt-1">Real-Time 100% Client-Side Tactical Landing Windows &amp; LOLA Topographic Clearance</p>
+            <h1 class="text-6xl font-black tracking-tight text-white mb-2 leading-none">PROJECT P.A.T.H.</h1>
+            <h2 class="text-2xl font-semibold text-amber-400 tracking-wide mb-3">Polar Artemis Telemetry &amp; Horizon-Planner</h2>
+            <p class="text-slate-400 text-base leading-relaxed">
+              Guiding humanity back to the Moon: Real-time client-side landing window screening and LOLA topographic occlusion clearance for Artemis III.
+            </p>
           </div>
 
-          <div class="technical-card p-5 rounded-lg space-y-2.5 text-xs">
-            <div class="font-mono text-xs text-sky-400 font-bold uppercase tracking-wider border-b border-slate-800 pb-1.5">Mission Flight Profile</div>
-            <div class="flex justify-between"><span class="text-slate-400 font-mono">• Target Zone:</span><span class="text-white font-medium">Lunar South Pole (83°S - 90°S Corridor)</span></div>
-            <div class="flex justify-between"><span class="text-slate-400 font-mono">• Baseline Sites:</span><span class="text-white font-medium">NASA Release 24-136 (Oct 28, 2024 9 Candidates)</span></div>
-            <div class="flex justify-between"><span class="text-slate-400 font-mono">• Core Hazard Mitigated:</span><span class="text-rose-400 font-medium">50km+ Shadows &amp; Direct-to-Earth RF Blackout</span></div>
-            <div class="flex justify-between"><span class="text-slate-400 font-mono">• Computational Engine:</span><span class="text-emerald-400 font-medium">Deterministic Ephemeris (JPL Horizons DE441 Calibrated)</span></div>
-            <div class="flex justify-between"><span class="text-slate-400 font-mono">• Flight Architect:</span><span class="text-amber-300 font-medium">Ahmed Tarek — Elsewedy University of Tech (SUT)</span></div>
+          <div class="space-y-4 pt-2 border-t border-slate-800 text-sm">
+            <div>
+              <span class="text-white font-bold tracking-wider">1969 APOLLO:</span>
+              <span class="text-slate-400 ml-2">Sunlit central equatorial plains. High solar elevation, flat terrain, zero shadow traps.</span>
+            </div>
+            <div>
+              <span class="text-amber-400 font-bold tracking-wider">ARTEMIS III:</span>
+              <span class="text-slate-400 ml-2">Lunar South Pole (83°S - 90°S). Sun grazes horizon at &lt; 2°. Shadows exceed 50 kilometers. Landing just a few hours late means dead batteries and loss of Earth communication.</span>
+            </div>
           </div>
 
-          <div class="flex items-center space-x-4 text-xs font-mono text-slate-400">
-            <span>LIVE: <a href="https://p-a-t-h.vercel.app" target="_blank" class="text-sky-400 underline">p-a-t-h.vercel.app</a></span>
-            <span>•</span>
-            <span>REPO: <a href="https://github.com/0x-xnum/P.A.T.H" target="_blank" class="text-sky-400 underline">github.com/0x-xnum/P.A.T.H</a></span>
+          <div class="text-xs text-slate-500 pt-2">
+            Presenter: <strong class="text-slate-300">Ahmed Tarek</strong> • Elsewedy University of Technology (SUT) • <a href="https://p-a-t-h.vercel.app" target="_blank" class="text-sky-400 underline">p-a-t-h.vercel.app</a>
           </div>
         </div>
 
-        <!-- Right 5 Cols: Authentic NASA LRO LOLA Topography Image -->
+        <!-- Right: Real NASA LRO LOLA Topography Image -->
         <div class="col-span-5 flex flex-col items-center justify-center">
-          <div class="relative rounded-lg overflow-hidden border-2 border-sky-500 glow-cyan max-w-md w-full">
+          <div class="rounded-xl overflow-hidden shadow-2xl border border-slate-800 max-w-md w-full">
             <img src="slide_assets/lunar_south_pole_lro.jpg" alt="NASA LRO LOLA South Pole Elevation" class="w-full h-auto object-cover">
-            <div class="absolute bottom-0 inset-x-0 bg-black/80 backdrop-blur p-3 text-[11px] font-mono border-t border-slate-800">
-              <div class="text-amber-400 font-bold">NASA LRO LOLA TOPOGRAPHIC ALTIMETRY</div>
-              <div class="text-slate-400 text-[10px]">Authentic laser altimeter DEM. Blue = deep crater basins (-4 km); White/Red = high illuminated massifs (+2 km).</div>
+            <div class="p-4 bg-[#0a0e17] border-t border-slate-800">
+              <div class="text-xs font-bold text-white uppercase tracking-wider">NASA LRO LOLA Altimetry (Lunar South Pole)</div>
+              <div class="text-[11px] text-slate-400 mt-1">Authentic laser altimeter elevation map. Blue = -4km crater basins; White/Red = +2km peaks.</div>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ==================== SLIDE 2 ==================== -->
-    <div class="slide flex-col p-10 justify-between" id="slide-2">
+    <!-- ==================== SLIDE 2: THE 50KM SHADOW TRAP ==================== -->
+    <div class="slide flex-col px-14 py-10 justify-between" id="slide-2">
       <div>
-        <div class="font-mono text-xs text-sky-400 tracking-widest uppercase mb-1">MISSION HAZARD ANALYSIS // ORBITAL MECHANICS</div>
-        <h2 class="text-3xl font-tech font-bold text-white">THE SOUTH POLE CHALLENGE: A MOVING SHADOW TRAP</h2>
+        <div class="text-xs font-mono font-bold tracking-widest text-slate-500 uppercase mb-1">ORBITAL MECHANICS &amp; TOPOGRAPHIC HAZARDS</div>
+        <h2 class="text-3xl font-extrabold text-white tracking-tight">WHY IS THE LUNAR SOUTH POLE SO COMPLICATED?</h2>
       </div>
 
-      <div class="grid grid-cols-12 gap-8 my-auto items-center">
-        <!-- Left: Authentic NASA Artemis Lighting Simulation Lab Photo -->
+      <div class="grid grid-cols-12 gap-12 my-auto items-center">
+        <!-- Left: Real NASA Photo -->
         <div class="col-span-5 flex flex-col justify-center">
-          <div class="relative rounded-lg overflow-hidden border-2 border-amber-500 glow-amber">
-            <img src="slide_assets/nasa_artemis_lighting_sim.jpg" alt="NASA JSC Artemis III Lighting Simulation" class="w-full h-auto object-cover">
-            <div class="p-3 bg-[#0d121c] border-t border-slate-800 font-mono text-[11px]">
-              <div class="text-amber-400 font-bold">PHOTO: NASA JOHNSON SPACE CENTER</div>
-              <div class="text-slate-400 text-[10px] mt-0.5">NASA engineers simulating the severe horizontal grazing sunlight astronauts will experience at the South Pole (Photo ID: CEB_1528).</div>
+          <div class="rounded-xl overflow-hidden shadow-2xl border border-slate-800">
+            <img src="slide_assets/nasa_artemis_lighting_sim.jpg" alt="NASA Artemis III Lighting Lab" class="w-full h-auto object-cover">
+            <div class="p-3.5 bg-[#0a0e17] border-t border-slate-800">
+              <div class="text-xs font-bold text-white uppercase tracking-wider">NASA Engineers Simulating Artemis III Lighting</div>
+              <div class="text-[11px] text-slate-400 mt-1">Testing horizontal grazing light at NASA Johnson Space Center (Photo ID: CEB_1528). At low solar angles, even tiny rocks cast massive deceptive shadows.</div>
             </div>
           </div>
         </div>
 
-        <!-- Right: The 4 Physical & Orbital Drivers -->
-        <div class="col-span-7 technical-card p-6 rounded-lg space-y-3.5 text-xs">
-          <div class="font-mono text-xs text-sky-400 font-bold uppercase tracking-wider border-b border-slate-800 pb-1.5">Orbital Mechanics &amp; Shadow Hazards</div>
+        <!-- Right: 3 Big Editorial Data Points -->
+        <div class="col-span-7 space-y-6">
           <div>
-            <div class="font-bold text-white text-sm mb-0.5">1. Extreme Low Grazing Sun (&lt;2.0° Elevation)</div>
-            <p class="text-slate-400 leading-relaxed">The Sun skims horizontally around the horizon. A 2 km crater wall casts shadows exceeding <code class="text-sky-300 font-mono">L = h / tan(0.5°) = 229 kilometers</code> across the surface.</p>
+            <div class="flex items-baseline space-x-3 mb-1">
+              <span class="text-4xl font-black text-rose-500">4 KM</span>
+              <span class="text-slate-400 font-bold text-sm tracking-wider uppercase">CRATER RIMS</span>
+              <span class="text-slate-600">→</span>
+              <span class="text-xl font-black text-white">50+ KM SHADOWS</span>
+            </div>
+            <p class="text-slate-400 text-sm leading-relaxed">
+              Because the Sun never climbs above 2°, crater rims cast shadows stretching dozens of kilometers. Landing inside an unexpected shadow means zero solar power and immediate battery exhaustion.
+            </p>
           </div>
+
           <div>
-            <div class="font-bold text-white text-sm mb-0.5">2. 29.5-Day Lunar Sol vs. 7-Day Stay</div>
-            <p class="text-slate-400 leading-relaxed">The Moon takes 708 hours for one day/night cycle. A 7-day Artemis mission sweeps only ~85° of azimuth. The loop does NOT repeat during the surface mission.</p>
+            <div class="flex items-baseline space-x-3 mb-1">
+              <span class="text-4xl font-black text-amber-400">1.54°</span>
+              <span class="text-white font-bold text-sm tracking-wider uppercase">AXIAL TILT • THE SKY NEVER REPEATS</span>
+            </div>
+            <p class="text-slate-400 text-sm leading-relaxed">
+              The Moon's tilt changes solar elevation across seasons, while Earth wobbles by ±7° in the sky. A site with 100% sunlight in December can be plunged into pitch darkness by June.
+            </p>
           </div>
+
           <div>
-            <div class="font-bold text-white text-sm mb-0.5">3. 1.54° Axial Tilt &amp; ±7° Earth Libration</div>
-            <p class="text-slate-400 leading-relaxed">The Moon's tilt changes solar height across seasons, while Earth wobbles in the sky—repeatedly dipping behind crater rims and severing telemetry.</p>
-          </div>
-          <div class="p-2.5 bg-amber-950/20 border border-amber-800/40 rounded text-amber-200 font-mono text-[11px]">
-            <strong>OPERATIONAL REALITY:</strong> Static maps are obsolete. A 24-hour launch slip completely alters landing site viability.
+            <div class="flex items-baseline space-x-2 mb-1">
+              <span class="text-sky-400 font-bold text-sm tracking-wider uppercase">THE PLANNING GAP:</span>
+              <span class="text-white font-bold text-sm uppercase">EXISTING TOOLS ARE STATIC AND HEAVY</span>
+            </div>
+            <p class="text-slate-400 text-sm leading-relaxed">
+              Flight controllers rely on multi-gigabyte SPICE kernels and offline batch simulations. If a launch slips by just 24 hours, planners have NO real-time interactive tool to test the new landing window on the fly.
+            </p>
           </div>
         </div>
       </div>
 
-      <div class="text-xs font-mono text-slate-500">PROJECT P.A.T.H. // SLIDE 02 OF 06</div>
+      <div class="text-xs font-mono text-slate-600">PROJECT P.A.T.H. • SLIDE 02 OF 06</div>
     </div>
 
-    <!-- ==================== SLIDE 3 ==================== -->
-    <div class="slide flex-col p-10 justify-between" id="slide-3">
+    <!-- ==================== SLIDE 3: INTRODUCING PROJECT P.A.T.H. ==================== -->
+    <div class="slide flex-col px-14 py-10 justify-between" id="slide-3">
       <div>
-        <div class="font-mono text-xs text-sky-400 tracking-widest uppercase mb-1">TECHNICAL IMPLEMENTATION // CLIENT-SIDE DATA PIPELINE</div>
-        <h2 class="text-3xl font-tech font-bold text-white">SYSTEM ARCHITECTURE: ZERO-LATENCY MISSION ENGINE</h2>
+        <div class="text-xs font-mono font-bold tracking-widest text-slate-500 uppercase mb-1">SYSTEM ARCHITECTURE // 100% CLIENT-SIDE</div>
+        <h2 class="text-3xl font-extrabold text-white tracking-tight">PROJECT P.A.T.H. — THE REAL-TIME TACTICAL WORKSTATION</h2>
       </div>
 
-      <!-- Live App Screenshot Embedded -->
-      <div class="relative rounded-lg overflow-hidden border-2 border-sky-500/80 glow-cyan max-h-[46vh] my-auto">
+      <!-- Real Console Screenshot -->
+      <div class="rounded-xl overflow-hidden shadow-2xl border border-slate-800 my-auto max-h-[46vh]">
         <img src="slide_assets/app_console_full.png" alt="P.A.T.H. Live Console" class="w-full h-auto object-cover">
       </div>
 
-      <!-- 3 Technical Architecture Blocks -->
-      <div class="grid grid-cols-3 gap-6 text-xs">
-        <div class="technical-card p-3.5 rounded border-t-2 border-sky-400">
-          <div class="font-mono text-[10px] text-sky-400 font-bold mb-1">LAYER 01 // DATA INGESTION</div>
-          <div class="font-bold text-white mb-1.5">NASA LRO Topography</div>
-          <ul class="text-slate-400 space-y-1 text-[11px]">
-            <li>▸ LRO LOLA 360° Azimuthal Horizon Profiles</li>
-            <li>▸ NASA Release 24-136 Official 9 Candidates</li>
-            <li>▸ Zero external cloud subscriptions or APIs</li>
-          </ul>
+      <!-- 3 Human Architecture Pillars (Clean, Spaced, High Readability) -->
+      <div class="grid grid-cols-3 gap-8 text-sm">
+        <div>
+          <div class="font-bold text-sky-400 text-xs uppercase tracking-wider mb-1">100% Client-Side Engine</div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            Zero servers. Zero cloud costs. Pure React &amp; TypeScript running directly in any web browser in &lt; 2ms per calculation. Works fully offline on field laptops.
+          </p>
         </div>
-
-        <div class="technical-card p-3.5 rounded border-t-2 border-amber-400">
-          <div class="font-mono text-[10px] text-amber-400 font-bold mb-1">LAYER 02 // PHYSICS ENGINE</div>
-          <div class="font-bold text-white mb-1.5">Deterministic Ephemeris</div>
-          <ul class="text-slate-400 space-y-1 text-[11px]">
-            <li>▸ Calibrated against JPL Horizons DE441</li>
-            <li>▸ Sub-2ms Topographic Occlusion Raycast</li>
-            <li>▸ 10 m² Omni-Vertical PV Model (~1,386W peak)</li>
-          </ul>
+        <div>
+          <div class="font-bold text-amber-400 text-xs uppercase tracking-wider mb-1">NASA LRO Topography</div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            High-resolution Lunar Reconnaissance Orbiter LOLA altimetry masks for all 9 official Artemis III candidate regions (NASA Release 24-136).
+          </p>
         </div>
-
-        <div class="technical-card p-3.5 rounded border-t-2 border-emerald-400">
-          <div class="font-mono text-[10px] text-emerald-400 font-bold mb-1">LAYER 03 // MISSION CONSOLE</div>
-          <div class="font-bold text-white mb-1.5">Operational Cockpit</div>
-          <ul class="text-slate-400 space-y-1 text-[11px]">
-            <li>▸ Aerospace Jog Dial &amp; UTC Epoch Picker</li>
-            <li>▸ Sky Horizon Radar with Clearance Thresholds</li>
-            <li>▸ Printable NASA Flight Dispatch Brief Modal</li>
-          </ul>
+        <div>
+          <div class="font-bold text-white text-xs uppercase tracking-wider mb-1">Tactical Time Conductor</div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            Aerospace jog dial and direct UTC picker allowing flight planners to scrub forward and backward through minutes, hours, or entire 29.5-day lunar cycles.
+          </p>
         </div>
       </div>
     </div>
 
-    <!-- ==================== SLIDE 4 ==================== -->
-    <div class="slide flex-col p-10 justify-between" id="slide-4">
+    <!-- ==================== SLIDE 4: TACTICAL SCREENING (CABEUS vs MELBA ROY) ==================== -->
+    <div class="slide flex-col px-14 py-10 justify-between" id="slide-4">
       <div>
-        <div class="font-mono text-xs text-sky-400 tracking-widest uppercase mb-1">LIVE OPERATIONAL TELEMETRY // REAL-TIME DECISION DEMONSTRATION</div>
-        <h2 class="text-3xl font-tech font-bold text-white">TACTICAL SCREENING: LETHAL SHADOW vs. OPTIMAL CORRIDOR</h2>
+        <div class="text-xs font-mono font-bold tracking-widest text-slate-500 uppercase mb-1">LIVE OPERATIONAL DEMONSTRATION // 48-HOUR TIME SHIFT</div>
+        <h2 class="text-3xl font-extrabold text-white tracking-tight">TACTICAL SCREENING: LETHAL SHADOW vs. OPTIMAL CORRIDOR</h2>
       </div>
 
-      <div class="grid grid-cols-2 gap-8 my-auto">
-        <!-- Cabeus B Failure Card -->
-        <div class="technical-card p-5 rounded-lg border-2 border-rose-600/80 bg-rose-950/10 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <span class="font-mono text-xs text-rose-400 font-bold">FAILURE MODE // PEAK NEAR CABEUS B (+48h)</span>
-              <span class="px-2 py-0.5 bg-rose-600 text-white font-mono text-xs font-bold rounded">NO-GO</span>
-            </div>
-            <div class="rounded overflow-hidden border border-rose-900/50 mb-3 max-h-40">
-              <img src="slide_assets/app_radar_crop.png" alt="Cabeus B Horizon Radar" class="w-full h-auto object-cover">
-            </div>
-            <div class="text-xs space-y-2">
-              <div class="flex justify-between border-b border-slate-800 pb-1"><span class="text-slate-400">LOLA Clearance:</span><span class="font-mono text-rose-400 font-bold">-0.4° BELOW Crater Ridge</span></div>
-              <div class="flex justify-between border-b border-slate-800 pb-1"><span class="text-slate-400">Photovoltaic Power:</span><span class="font-mono text-rose-400 font-bold">0 Watts (Engulfed in Shadow)</span></div>
-              <div class="flex justify-between border-b border-slate-800 pb-1"><span class="text-slate-400">Direct-to-Earth Comms:</span><span class="font-mono text-rose-400 font-bold">SEVERED (-2.4° Obstacle Block)</span></div>
-              <div class="flex justify-between"><span class="text-slate-400">Algorithmic Score:</span><span class="font-mono text-rose-400 font-bold">28 / 100 (Demoted to Bottom)</span></div>
-            </div>
+      <div class="grid grid-cols-2 gap-10 my-auto">
+        <!-- Cabeus B Failure -->
+        <div class="flex flex-col justify-between space-y-3">
+          <div class="flex items-center space-x-3">
+            <span class="text-2xl font-bold text-white">CABEUS B</span>
+            <span class="px-2 py-0.5 bg-rose-500/20 text-rose-400 font-bold text-xs uppercase rounded">NO-GO</span>
           </div>
-          <div class="mt-3 p-2 bg-rose-900/20 border border-rose-800/40 rounded text-[11px] text-rose-200">
-            <strong>Verdict:</strong> Advance time 48h and the site falls into total darkness. Batteries drain to zero.
+          <div class="rounded-xl overflow-hidden border border-slate-800 shadow-xl max-h-44">
+            <img src="slide_assets/app_radar_crop.png" alt="Cabeus B Radar" class="w-full h-auto object-cover">
+          </div>
+          <div>
+            <div class="text-sm font-bold text-rose-400 mb-1 uppercase tracking-wide">0 Watts • Comms Severed</div>
+            <p class="text-slate-400 text-xs leading-relaxed">
+              Advance time by 48 hours with our jog dial: the Sun sinks below the red crater rim (-0.4° clearance). Solar power collapses to 0W and Earth line-of-sight is blocked. The algorithm flags it as NO-GO (Score: 28/100).
+            </p>
           </div>
         </div>
 
-        <!-- Melba Roy Mouton Safe Card -->
-        <div class="technical-card p-5 rounded-lg border-2 border-emerald-500/80 bg-emerald-950/10 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between mb-2">
-              <span class="font-mono text-xs text-emerald-400 font-bold">OPTIMAL CORRIDOR // MELBA ROY MOUTON RIDGE</span>
-              <span class="px-2 py-0.5 bg-emerald-600 text-white font-mono text-xs font-bold rounded">GO (RANK #1)</span>
-            </div>
-            <div class="rounded overflow-hidden border border-emerald-900/50 mb-3 max-h-40">
-              <img src="slide_assets/app_surface_map.png" alt="South Pole Surface Map" class="w-full h-auto object-cover">
-            </div>
-            <div class="text-xs space-y-2">
-              <div class="flex justify-between border-b border-slate-800 pb-1"><span class="text-slate-400">Topography Advantage:</span><span class="font-mono text-emerald-300 font-bold">High Polar Massif Elevation</span></div>
-              <div class="flex justify-between border-b border-slate-800 pb-1"><span class="text-slate-400">7-Day Illumination:</span><span class="font-mono text-emerald-400 font-bold">&gt;96.4% Continuous Sunlight</span></div>
-              <div class="flex justify-between border-b border-slate-800 pb-1"><span class="text-slate-400">Photovoltaic Power:</span><span class="font-mono text-emerald-400 font-bold">~1,386 Watts Continuous Peak</span></div>
-              <div class="flex justify-between"><span class="text-slate-400">Algorithmic Score:</span><span class="font-mono text-emerald-400 font-bold">96 / 100 (Top Recommended Landing Corridor)</span></div>
-            </div>
+        <!-- Melba Roy Mouton Safe -->
+        <div class="flex flex-col justify-between space-y-3">
+          <div class="flex items-center space-x-3">
+            <span class="text-2xl font-bold text-white">MELBA ROY MOUTON</span>
+            <span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 font-bold text-xs uppercase rounded">GO (RANK #1)</span>
           </div>
-          <div class="mt-3 p-2 bg-emerald-900/20 border border-emerald-800/40 rounded text-[11px] text-emerald-200">
-            <strong>Verdict:</strong> High elevation clears surrounding topography, securing unbroken power and constant Earth telemetry.
+          <div class="rounded-xl overflow-hidden border border-slate-800 shadow-xl max-h-44">
+            <img src="slide_assets/app_surface_map.png" alt="South Pole Surface Map" class="w-full h-auto object-cover">
+          </div>
+          <div>
+            <div class="text-sm font-bold text-emerald-400 mb-1 uppercase tracking-wide">&gt; 96% Sunlight • Continuous Telemetry</div>
+            <p class="text-slate-400 text-xs leading-relaxed">
+              Thanks to its high elevation, solar panels receive continuous sunlight across a full 7-day Artemis mission stay, maintaining unbroken radio contact with Earth Ground Stations (Score: 96/100).
+            </p>
           </div>
         </div>
       </div>
 
-      <div class="text-xs font-mono text-slate-500">PROJECT P.A.T.H. // SLIDE 04 OF 06</div>
+      <div class="text-xs font-mono text-slate-600">PROJECT P.A.T.H. • SLIDE 04 OF 06</div>
     </div>
 
-    <!-- ==================== SLIDE 5 ==================== -->
-    <div class="slide flex-col p-10 justify-between" id="slide-5">
+    <!-- ==================== SLIDE 5: SCIENTIFIC RIGOR ==================== -->
+    <div class="slide flex-col px-14 py-10 justify-between" id="slide-5">
       <div>
-        <div class="font-mono text-xs text-sky-400 tracking-widest uppercase mb-1">MATHEMATICAL RIGOR // EPHEMERIS BENCHMARKING</div>
-        <h2 class="text-3xl font-tech font-bold text-white">SCIENTIFIC RIGOR: CALIBRATED TO NASA JPL STANDARDS</h2>
+        <div class="text-xs font-mono font-bold tracking-widest text-slate-500 uppercase mb-1">MATHEMATICAL FORMULATIONS // EPHEMERIS BENCHMARKING</div>
+        <h2 class="text-3xl font-extrabold text-white tracking-tight">SCIENTIFIC RIGOR: CALIBRATED AGAINST NASA JPL HORIZONS</h2>
       </div>
 
-      <div class="grid grid-cols-2 gap-8 my-auto">
-        <!-- Benchmark Table -->
-        <div class="technical-card p-5 rounded-lg space-y-3">
-          <div class="font-mono text-xs text-sky-400 font-bold uppercase tracking-wider border-b border-slate-800 pb-2">JPL Horizons DE441 Ephemeris Calibration</div>
-          <p class="text-xs text-slate-400">Verified against official JPL Horizons ephemeris queries (IAU_MOON Frame 500@-301):</p>
+      <div class="grid grid-cols-2 gap-12 my-auto">
+        <!-- Left: JPL Benchmark Table -->
+        <div class="space-y-4">
+          <div class="flex items-baseline space-x-3">
+            <span class="text-4xl font-black text-sky-400">&lt; 0.3°</span>
+            <span class="text-white font-bold text-sm tracking-wider uppercase">EPHEMERIS ERROR BOUND</span>
+          </div>
+          <p class="text-slate-400 text-xs">Calibrated directly against NASA JPL Horizons DE441 (IAU_MOON Frame 500@-301):</p>
 
-          <table class="w-full text-xs font-mono border border-slate-800">
-            <thead class="bg-[#161d2d] text-sky-300">
-              <tr>
-                <th class="p-2 text-left">Epoch (UTC)</th>
-                <th class="p-2 text-left">Body</th>
-                <th class="p-2 text-left">JPL Reference</th>
-                <th class="p-2 text-left">P.A.T.H. Δ</th>
+          <table class="w-full text-xs font-mono border-t border-b border-slate-800">
+            <thead class="text-slate-400">
+              <tr class="border-b border-slate-800">
+                <th class="py-2 text-left">Epoch (UTC)</th>
+                <th class="py-2 text-left">Target</th>
+                <th class="py-2 text-left">JPL Reference</th>
+                <th class="py-2 text-left">P.A.T.H. Δ</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-800 text-slate-300">
-              <tr><td class="p-2">2026-Oct-15 12:00</td><td class="p-2">Sun</td><td class="p-2">Az 184.2° El -0.8°</td><td class="p-2 text-emerald-400 font-bold">0.18° [PASS]</td></tr>
-              <tr><td class="p-2">2026-Oct-15 12:00</td><td class="p-2">Earth</td><td class="p-2">Az 042.1° El +6.3°</td><td class="p-2 text-emerald-400 font-bold">0.22° [PASS]</td></tr>
-              <tr><td class="p-2">2027-Jun-21 00:00</td><td class="p-2">Sun</td><td class="p-2">Az 092.5° El +1.4°</td><td class="p-2 text-emerald-400 font-bold">0.15° [PASS]</td></tr>
-              <tr><td class="p-2">2027-Jun-21 00:00</td><td class="p-2">Earth</td><td class="p-2">Az 318.4° El +4.9°</td><td class="p-2 text-emerald-400 font-bold">0.19° [PASS]</td></tr>
+            <tbody class="divide-y divide-slate-850 text-slate-300">
+              <tr><td class="py-2">2026-Oct-15 12:00</td><td>Sun (10)</td><td>Az 184.2° El -0.8°</td><td class="text-emerald-400 font-bold">0.18° [PASS]</td></tr>
+              <tr><td class="py-2">2026-Oct-15 12:00</td><td>Earth (399)</td><td>Az 042.1° El +6.3°</td><td class="text-emerald-400 font-bold">0.22° [PASS]</td></tr>
+              <tr><td class="py-2">2027-Jun-21 00:00</td><td>Sun (10)</td><td>Az 092.5° El +1.4°</td><td class="text-emerald-400 font-bold">0.15° [PASS]</td></tr>
+              <tr><td class="py-2">2027-Jun-21 00:00</td><td>Earth (399)</td><td>Az 318.4° El +4.9°</td><td class="text-emerald-400 font-bold">0.19° [PASS]</td></tr>
             </tbody>
           </table>
 
-          <div class="p-2.5 bg-emerald-950/20 border border-emerald-800/40 rounded flex justify-between items-center text-xs font-mono">
-            <span class="text-emerald-400 font-bold">AUTOMATED UNIT TESTS:</span>
-            <span class="text-white">13 / 13 Vitest Tests Passing</span>
+          <div class="text-xs text-slate-400">
+            <strong class="text-emerald-400">13 / 13 AUTOMATED TESTS PASSING:</strong> Continuous Vitest test suite strictly validates solar bounds and coordinate math. 100% deterministic, zero black-box AI approximations.
           </div>
         </div>
 
-        <!-- Physical Formulas -->
-        <div class="technical-card p-5 rounded-lg space-y-3.5 text-xs">
-          <div class="font-mono text-xs text-amber-400 font-bold uppercase tracking-wider border-b border-slate-800 pb-2">Authentic Polar PV Array Physics</div>
-          <div>
-            <div class="font-bold text-white mb-0.5">1. Polar Omni-Vertical Aperture Geometry:</div>
-            <p class="text-slate-400 mb-1">Grazing solar vectors require vertical arrays. Projected cross-section for 10m² cylinder:</p>
-            <div class="font-mono text-sky-400 bg-black/40 p-1.5 rounded border border-slate-800">A_effective = A_total / π ≈ 10 m² / 3.14159 ≈ 3.18 m²</div>
+        <!-- Right: Realistic Polar PV Physics -->
+        <div class="space-y-4">
+          <div class="flex items-baseline space-x-3">
+            <span class="text-4xl font-black text-amber-400">1,386 W</span>
+            <span class="text-white font-bold text-sm tracking-wider uppercase">PEAK REALISTIC POWER</span>
           </div>
-          <div>
-            <div class="font-bold text-white mb-0.5">2. Realistic Peak Photovoltaic Power Output:</div>
-            <p class="text-slate-400 mb-1">AM0 solar irradiance (1,361 W/m²) with 32% triple-junction space cells:</p>
-            <div class="font-mono text-emerald-400 bg-black/40 p-1.5 rounded border border-slate-800">P_peak = 1,361 W/m² × 0.32 × 3.18 m² ≈ 1,386 Watts</div>
-          </div>
-          <div>
-            <div class="font-bold text-white mb-0.5">3. Numerical Trapezoidal Energy Integration:</div>
-            <p class="text-slate-400 mb-1">Continuous energy accumulation across 1–30 day mission durations:</p>
-            <div class="font-mono text-amber-400 bg-black/40 p-1.5 rounded border border-slate-800">E_total = Σ [ (P_i + P_{i+1}) / 2 ] · (Δt / 3600) kWh</div>
+
+          <div class="space-y-3 text-xs leading-relaxed">
+            <div>
+              <div class="font-bold text-white uppercase mb-0.5">1. Polar Omni-Vertical Cylinder Geometry:</div>
+              <p class="text-slate-400">At the South Pole, grazing sunlight circles horizontally, requiring vertical solar arrays. For a 10m² cylinder, the effective projected cross-section is: <code class="text-sky-300 font-mono">A_eff = A / π ≈ 3.18 m²</code>.</p>
+            </div>
+            <div>
+              <div class="font-bold text-white uppercase mb-0.5">2. Realistic AM0 Solar Flux &amp; Cell Efficiency:</div>
+              <p class="text-slate-400"><code class="text-amber-300 font-mono">P_peak = 1,361 W/m² × 32% (space triple-junction) × 3.18 m² ≈ 1,386 Watts</code>.</p>
+            </div>
+            <div>
+              <div class="font-bold text-white uppercase mb-0.5">3. Trapezoidal Numerical Energy Integration:</div>
+              <p class="text-slate-400"><code class="text-emerald-300 font-mono">E = Σ [ (P_i + P_{i+1}) / 2 ] · (Δt / 3600) kWh</code>. Evaluates cumulative mission energy across 1 to 30-day surface stays without fencepost errors.</p>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="text-xs font-mono text-slate-500">PROJECT P.A.T.H. // SLIDE 05 OF 06</div>
+      <div class="text-xs font-mono text-slate-600">PROJECT P.A.T.H. • SLIDE 05 OF 06</div>
     </div>
 
-    <!-- ==================== SLIDE 6 ==================== -->
-    <div class="slide flex-col p-10 justify-between" id="slide-6">
+    <!-- ==================== SLIDE 6: MISSION IMPACT & GRAND FINALE ==================== -->
+    <div class="slide flex-col px-14 py-10 justify-between" id="slide-6">
       <div>
-        <div class="font-mono text-xs text-sky-400 tracking-widest uppercase mb-1">OPERATIONAL UTILITY // CALL TO ACTION &amp; OPEN SCIENCE</div>
-        <h2 class="text-3xl font-tech font-bold text-white">MISSION IMPACT: FROM RAW DATA TO FLIGHT DISPATCH</h2>
+        <div class="text-xs font-mono font-bold tracking-widest text-slate-500 uppercase mb-1">TANGIBLE OPERATIONAL DELIVERABLE // CALL TO ACTION</div>
+        <h2 class="text-3xl font-extrabold text-white tracking-tight">MISSION IMPACT: FROM RAW DATA TO FLIGHT DISPATCH</h2>
       </div>
 
-      <div class="grid grid-cols-12 gap-8 my-auto items-center">
-        <!-- Left 6 cols: Actual Printable Report Modal Screenshot! -->
+      <div class="grid grid-cols-12 gap-12 my-auto items-center">
+        <!-- Left: Real Printable Report Screenshot -->
         <div class="col-span-6 flex justify-center">
-          <div class="relative rounded-lg overflow-hidden border-2 border-sky-500 glow-cyan max-h-[50vh]">
+          <div class="rounded-xl overflow-hidden shadow-2xl border border-slate-800 max-h-[50vh]">
             <img src="slide_assets/app_report_modal.png" alt="Printable NASA Flight Dispatch Brief Modal" class="w-full h-auto object-cover">
           </div>
         </div>
 
-        <!-- Right 6 cols: Mission Impact & Closing -->
-        <div class="col-span-6 technical-card p-6 rounded-lg space-y-4 text-xs">
-          <div class="font-mono text-xs text-amber-400 font-bold uppercase tracking-wider border-b border-slate-800 pb-2">Tangible Operational Output</div>
-          <div class="text-lg font-bold text-white">Democratizing Lunar Mission Planning</div>
-          <ul class="text-slate-300 space-y-3 text-xs">
-            <li>▸ <strong>Printable Flight Dispatch Brief:</strong> Generates an official NASA mission brief directly from browser memory with multi-duration windows (24h EVA, 7-day Artemis baseline, 30-day Sol).</li>
-            <li>▸ <strong>Universal Zero-Cost Access:</strong> 100% open-source React &amp; TypeScript. Eliminates multi-thousand dollar commercial aerospace software licenses and runs offline.</li>
-            <li>▸ <strong>Astronaut Life-Support Protection:</strong> Directly identifies lethal shadow transitions and radio blackouts BEFORE boots touch lunar regolith.</li>
-          </ul>
+        <!-- Right: Clear Editorial Impact -->
+        <div class="col-span-6 space-y-6">
+          <div class="text-xl font-bold text-white">NOT JUST A DASHBOARD — AN OPERATIONAL TOOL</div>
 
-          <div class="pt-3 border-t border-slate-800">
-            <div class="text-sky-300 font-bold italic text-sm mb-1">"Project P.A.T.H. is ready to guide humanity back to the Moon."</div>
-            <div class="font-mono text-[11px] text-slate-400">Ahmed Tarek — Elsewedy University of Technology (SUT)</div>
+          <div class="space-y-4 text-xs">
+            <div>
+              <div class="font-bold text-sky-400 text-sm mb-1 uppercase tracking-wide">• One-Click Flight Dispatch Brief</div>
+              <p class="text-slate-400 leading-relaxed">
+                Generates and prints an official NASA Flight Dispatch Brief with multi-duration energy integration (24-Hour EVA, 7-Day Artemis III Baseline, and 30-Day Sol cycles) plus raw telemetry JSON exports.
+              </p>
+            </div>
+            <div>
+              <div class="font-bold text-amber-400 text-sm mb-1 uppercase tracking-wide">• Universal Open Access</div>
+              <p class="text-slate-400 leading-relaxed">
+                100% client-side open source. Eliminates expensive commercial aerospace licenses and allows flight controllers, students, and researchers worldwide to evaluate lunar landing safety on any laptop.
+              </p>
+            </div>
+            <div>
+              <div class="font-bold text-white text-sm mb-1 uppercase tracking-wide">• Astronaut Safety</div>
+              <p class="text-slate-400 leading-relaxed">
+                Directly prevents fatal shadow entrapment and telemetry blackouts before human boots touch the lunar regolith.
+              </p>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-slate-800">
+            <div class="text-lg font-bold text-white tracking-tight mb-1">“Project P.A.T.H. is ready to guide humanity back to the Moon.”</div>
+            <div class="text-xs text-slate-500 font-mono">Ahmed Tarek • Elsewedy University of Technology (SUT) • p-a-t-h.vercel.app</div>
           </div>
         </div>
       </div>
 
-      <div class="flex items-center justify-between text-xs font-mono text-slate-400 pt-3 border-t border-slate-900">
-        <div>LIVE CONSOLE: <a href="https://p-a-t-h.vercel.app" target="_blank" class="text-sky-400 underline">p-a-t-h.vercel.app</a></div>
-        <div>GITHUB: <a href="https://github.com/0x-xnum/P.A.T.H" target="_blank" class="text-sky-400 underline">0x-xnum/P.A.T.H</a></div>
-        <div>NASA SPACE APPS CHALLENGE CAIRO 2026</div>
-      </div>
+      <div class="text-xs font-mono text-slate-600">PROJECT P.A.T.H. • SLIDE 06 OF 06</div>
     </div>
 
   </main>
 
-  <!-- Bottom Navigation & Timer Bar -->
-  <footer class="h-14 bg-[#080b12] border-t border-[#1b2434] px-6 flex items-center justify-between font-mono text-xs shrink-0">
+  <!-- Bottom Navigation Bar -->
+  <footer class="h-12 border-t border-[#1c2432] px-8 flex items-center justify-between text-xs font-mono text-slate-400 shrink-0">
     <div class="flex items-center space-x-4">
-      <button onclick="prevSlide()" class="px-3 py-1.5 bg-[#172033] hover:bg-sky-900/50 text-slate-200 border border-slate-700 rounded transition">
+      <button onclick="prevSlide()" class="px-3 py-1 bg-[#121722] hover:bg-slate-800 text-slate-200 border border-slate-700 rounded transition">
         ← Prev
       </button>
-      <button onclick="nextSlide()" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded transition">
+      <button onclick="nextSlide()" class="px-3 py-1 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded transition">
         Next →
       </button>
       <div class="flex space-x-1.5 ml-4" id="dotsContainer"></div>
     </div>
 
     <!-- Live Pitch Timer -->
-    <div class="flex items-center space-x-3 bg-[#101524] px-4 py-1.5 rounded border border-slate-800">
-      <span class="text-slate-400">PITCH TIMER:</span>
-      <span id="timerDisplay" class="text-emerald-400 font-bold text-sm">02:45</span>
-      <button onclick="toggleTimer()" id="timerBtn" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[11px]">Start</button>
-      <button onclick="resetTimer()" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded text-[11px]">Reset</button>
+    <div class="flex items-center space-x-3 bg-[#101524] px-3.5 py-1 rounded border border-slate-800">
+      <span class="text-slate-400 text-[11px]">PITCH TIMER:</span>
+      <span id="timerDisplay" class="text-emerald-400 font-bold text-xs">02:45</span>
+      <button onclick="toggleTimer()" id="timerBtn" class="px-1.5 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[10px]">Start</button>
+      <button onclick="resetTimer()" class="px-1.5 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded text-[10px]">Reset</button>
     </div>
 
-    <div class="text-slate-500">
-      Keys: <kbd class="px-1.5 py-0.5 bg-slate-800 text-slate-300 rounded border border-slate-700">←</kbd> <kbd class="px-1.5 py-0.5 bg-slate-800 text-slate-300 rounded border border-slate-700">→</kbd> <kbd class="px-1.5 py-0.5 bg-slate-800 text-slate-300 rounded border border-slate-700">F</kbd> <kbd class="px-1.5 py-0.5 bg-slate-800 text-slate-300 rounded border border-slate-700">N</kbd>
+    <div class="text-slate-500 text-[11px]">
+      Keys: <kbd class="px-1 bg-slate-800 rounded">←</kbd> <kbd class="px-1 bg-slate-800 rounded">→</kbd> <kbd class="px-1 bg-slate-800 rounded">F</kbd> <kbd class="px-1 bg-slate-800 rounded">N</kbd>
     </div>
   </footer>
 
   <!-- Slide Notes Modal -->
-  <div id="notesDrawer" class="hidden fixed bottom-14 left-0 right-0 max-h-56 bg-[#080d19]/95 backdrop-blur border-t-2 border-sky-500 p-6 overflow-y-auto text-sm text-slate-200 shadow-2xl z-50">
+  <div id="notesDrawer" class="hidden fixed bottom-12 left-0 right-0 max-h-52 bg-[#06080c]/98 backdrop-blur border-t border-slate-700 p-6 overflow-y-auto text-sm text-slate-200 shadow-2xl z-50">
     <div class="flex justify-between items-center mb-2 pb-1 border-b border-slate-800">
       <span class="font-mono text-xs text-sky-400 font-bold uppercase tracking-wider">Speaker Notes (Slide <span id="notesSlideNum">1</span>)</span>
       <button onclick="toggleNotes()" class="text-slate-400 hover:text-white text-xs font-mono">[Close (ESC)]</button>
     </div>
-    <div id="notesContent" class="leading-relaxed font-sans text-slate-100"></div>
+    <div id="notesContent" class="leading-relaxed text-slate-300 text-xs"></div>
   </div>
 
   <script>
@@ -406,7 +408,7 @@
       const active = document.getElementById(`slide-${num}`);
       if (active) active.classList.add('active');
       currentSlide = num;
-      document.getElementById('slideIndicator').textContent = `SLIDE 0${num} / 06`;
+      document.getElementById('slideIndicator').textContent = `0${num} / 06`;
       document.getElementById('notesSlideNum').textContent = num;
       document.getElementById('notesContent').textContent = scripts[num];
       updateDots();
@@ -420,7 +422,7 @@
       container.innerHTML = '';
       for (let i = 1; i <= totalSlides; i++) {
         const dot = document.createElement('button');
-        dot.className = `w-2.5 h-2.5 rounded-full transition ${i === currentSlide ? 'bg-sky-400 scale-125' : 'bg-slate-700 hover:bg-slate-500'}`;
+        dot.className = `w-2 h-2 rounded-full transition ${i === currentSlide ? 'bg-white scale-125' : 'bg-slate-700 hover:bg-slate-500'}`;
         dot.onclick = () => showSlide(i);
         container.appendChild(dot);
       }
@@ -455,9 +457,9 @@
             const display = document.getElementById('timerDisplay');
             display.textContent = `${m}:${s}`;
             if (timerSeconds < 30) {
-              display.className = 'text-rose-400 font-bold text-sm animate-pulse';
+              display.className = 'text-rose-400 font-bold text-xs animate-pulse';
             } else if (timerSeconds < 60) {
-              display.className = 'text-amber-400 font-bold text-sm';
+              display.className = 'text-amber-400 font-bold text-xs';
             }
           } else {
             clearInterval(timerInterval);
@@ -473,7 +475,7 @@
       timerInterval = null;
       timerSeconds = 165;
       document.getElementById('timerDisplay').textContent = '02:45';
-      document.getElementById('timerDisplay').className = 'text-emerald-400 font-bold text-sm';
+      document.getElementById('timerDisplay').className = 'text-emerald-400 font-bold text-xs';
       document.getElementById('timerBtn').textContent = 'Start';
     }
 
