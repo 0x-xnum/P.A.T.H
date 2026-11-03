@@ -99,32 +99,49 @@ export const LunarSurfaceMap: React.FC<LunarSurfaceMapProps> = ({
       { name: 'Nobile', lat: -85.2, lon: 53.5, radiusKm: 36 },
     ];
 
+    // Scale km to canvas pixels (83°S to 90°S = 7 degrees = ~212 km surface distance)
+    const kmToPixels = maxRadius / 212;
+
     majorCraters.forEach((crater) => {
       const [cx, cy] = lunarCoordsToCanvas(crater.lat, crater.lon);
-      const pixelRadius = Math.max(8, (crater.radiusKm / 300) * maxRadius);
+      const cr = crater.radiusKm * kmToPixels;
 
-      // Crater interior (permanently shadowed ice trap)
+      // Dark shadow fill inside crater
       ctx.beginPath();
-      ctx.arc(cx, cy, pixelRadius, 0, 2 * Math.PI);
-      ctx.fillStyle = 'rgba(6, 182, 212, 0.08)'; // faint cyan for volatile ice trap
+      ctx.arc(cx, cy, Math.max(cr, 3), 0, 2 * Math.PI);
+      ctx.fillStyle = 'rgba(2, 6, 23, 0.85)';
       ctx.fill();
-      ctx.strokeStyle = 'rgba(6, 182, 212, 0.25)';
+
+      // Rim outline
+      ctx.strokeStyle = 'rgba(100, 116, 139, 0.45)';
       ctx.lineWidth = 1;
       ctx.stroke();
 
-      // Crater label
-      ctx.fillStyle = 'rgba(148, 163, 184, 0.5)';
+      // Crater Label
+      ctx.fillStyle = 'rgba(148, 163, 184, 0.65)';
       ctx.font = '8px monospace';
       ctx.textAlign = 'center';
-      ctx.fillText(crater.name, cx, cy + pixelRadius + 9);
+      ctx.fillText(crater.name, cx, cy + Math.max(cr, 3) + 9);
     });
 
-    // Draw Sub-Solar illumination direction vector
+    // 0° Prime Meridian ray (pointing toward Earth)
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY);
+    ctx.lineTo(centerX, centerY - maxRadius);
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.25)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    ctx.fillStyle = '#38bdf8';
+    ctx.font = '9px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('0° (EARTH DIRECTION)', centerX, centerY - maxRadius - 6);
+
+    // Calculate real-time Sub-solar Longitude and draw Sun Illumination Direction Vector
     const subSolar = calculateSubSolarCoordinates(currentDate);
     const sunAngleRad = ((subSolar.longitude - 90) * Math.PI) / 180;
-    const arrowLen = maxRadius + 14;
-    const ax = centerX + arrowLen * Math.cos(sunAngleRad);
-    const ay = centerY + arrowLen * Math.sin(sunAngleRad);
+    const ax = centerX + (maxRadius + 14) * Math.cos(sunAngleRad);
+    const ay = centerY + (maxRadius + 14) * Math.sin(sunAngleRad);
 
     ctx.beginPath();
     ctx.moveTo(ax, ay);
@@ -177,6 +194,47 @@ export const LunarSurfaceMap: React.FC<LunarSurfaceMapProps> = ({
       ctx.fillText(site.name.split(' ')[0], sx, sy - 8);
     });
 
+    // If selectedSite is custom (outside official list), draw glowing tactical targeting crosshair!
+    const isCustom = !ARTEMIS_CANDIDATE_SITES.some((s) => s.id === selectedSite.id);
+    if (isCustom && Math.abs(selectedSite.coordinates.latitude) >= 83) {
+      const [cx, cy] = lunarCoordsToCanvas(selectedSite.coordinates.latitude, selectedSite.coordinates.longitude);
+      const customTelemetry = sampleTelemetry(selectedSite, currentDate);
+      let pinColor = '#ef4444';
+      if (customTelemetry.windowRating === 'optimal') pinColor = '#10b981';
+      else if (customTelemetry.windowRating === 'marginal') pinColor = '#f59e0b';
+
+      // Crosshair lines
+      ctx.beginPath();
+      ctx.moveTo(cx - 15, cy);
+      ctx.lineTo(cx + 15, cy);
+      ctx.moveTo(cx, cy - 15);
+      ctx.lineTo(cx, cy + 15);
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Targeting ring
+      ctx.beginPath();
+      ctx.arc(cx, cy, 10, 0, 2 * Math.PI);
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Inner beacon dot
+      ctx.beginPath();
+      ctx.arc(cx, cy, 4, 0, 2 * Math.PI);
+      ctx.fillStyle = pinColor;
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = 'bold 9px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('TARGET PIN', cx, cy - 13);
+    }
+
     // South Pole center dot (90° S)
     ctx.beginPath();
     ctx.arc(centerX, centerY, 3, 0, 2 * Math.PI);
@@ -189,7 +247,7 @@ export const LunarSurfaceMap: React.FC<LunarSurfaceMapProps> = ({
     ctx.fillText('90°S POLE', centerX, centerY + 14);
   }, [currentDate, selectedSite]);
 
-  // Click on canvas to select nearest site
+  // Click on canvas to select nearest site OR drop a custom tactical target pin
   const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -235,6 +293,43 @@ export const LunarSurfaceMap: React.FC<LunarSurfaceMapProps> = ({
 
     if (nearestSite) {
       onSelectSite(nearestSite);
+    } else {
+      // User clicked on open terrain / crater: Drop a custom tactical target pin!
+      const dx = actualX - centerX;
+      const dy = actualY - centerY;
+      const clickDist = Math.hypot(dx, dy);
+
+      if (clickDist <= maxRadius) {
+        // Inverse stereographic projection:
+        // clickDist / maxRadius = (90 - |lat|) / 7
+        const latVal = -(90 - (clickDist / maxRadius) * 7);
+
+        // Angle in radians: angleRad = ((lon - 90) * Math.PI) / 180
+        const angleRad = Math.atan2(dy, dx);
+        let lonDeg = (angleRad * 180) / Math.PI + 90;
+        if (lonDeg < 0) lonDeg += 360;
+        if (lonDeg >= 360) lonDeg -= 360;
+
+        const customTargetSite: LandingSite = {
+          id: `custom-map-${Date.now()}`,
+          name: `Target (${Math.abs(latVal).toFixed(2)}°S, ${lonDeg.toFixed(1)}°E)`,
+          designation: 'TACTICAL-PIN-01',
+          coordinates: {
+            latitude: parseFloat(latVal.toFixed(3)),
+            longitude: parseFloat(lonDeg.toFixed(3)),
+            elevationMeters: 1000,
+          },
+          description: `Custom waypoint designated via 2D Lunar South Pole interactive stereographic targeting.`,
+          rimHeightMeters: 1800,
+          permanentlyShadowedNearby: Math.abs(latVal) > 86,
+          isOfficialArtemisCandidate: false,
+          category: 'custom',
+          scientificValue: 'Arbitrary exploration waypoint targeted on polar stereographic surface projection.',
+          officialCitation: 'Interactive Surface Map Targeting',
+        };
+
+        onSelectSite(customTargetSite);
+      }
     }
   };
 
@@ -263,7 +358,7 @@ export const LunarSurfaceMap: React.FC<LunarSurfaceMapProps> = ({
         </div>
       </div>
 
-      <div className="relative my-2 cursor-pointer">
+      <div className="relative my-2 cursor-crosshair">
         <canvas
           ref={canvasRef}
           style={{ width: 520, height: 520 }}
@@ -272,8 +367,9 @@ export const LunarSurfaceMap: React.FC<LunarSurfaceMapProps> = ({
         />
       </div>
 
-      <div className="w-full text-center text-xs font-mono text-slate-400 mt-2">
-        Click any site marker on the surface map to inspect local horizon radar &amp; telemetry
+      <div className="w-full text-center text-xs font-mono text-slate-400 mt-2 flex flex-col sm:flex-row items-center justify-between gap-2 px-2">
+        <span>Click any candidate marker, or click anywhere on the Moon to drop a custom target pin</span>
+        <span className="text-sky-400 font-semibold">{selectedSite.name}</span>
       </div>
     </div>
   );
