@@ -92,10 +92,11 @@ export default function App() {
       />
 
       {/* Main Mission Control Grid */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left Column: Target Site Selection & Site Details (5 cols) */}
-          <div className="lg:col-span-5 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 space-y-4">
+        {/* Row 1: Core Aerospace Mission Deck (Split Screen 12 cols) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+          {/* Left Column: Target Site Selection & Active Telemetry Status (5 cols) */}
+          <div className="lg:col-span-5 space-y-4">
             <SiteSelector
               selectedSite={selectedSite}
               onSelectSite={setSelectedSite}
@@ -107,42 +108,41 @@ export default function App() {
               onToggleArchived2022={setShowArchived2022}
             />
 
-            {/* Quick Scientific Briefing Box */}
-            <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-4 text-xs font-mono text-slate-400 space-y-2">
-              <div className="text-sky-400 font-semibold flex items-center gap-2">
-                <span>ℹ️ POLAR MISSION FLIGHT CRITERIA</span>
-              </div>
-              <p className="leading-relaxed text-[11px]">
-                The Moon's axis is tilted only 1.54°. South Pole crater rims experience grazing solar paths that sweep
-                360° horizontally. Artemis III operations require persistent Sun for lander solar array power and direct
-                line-of-sight to Earth for unassisted real-time telemetry.
-              </p>
-            </div>
+            <StatusCard
+              telemetry={telemetry}
+              sunTerrainCutoff={sunTerrainCutoff}
+              earthTerrainCutoff={earthTerrainCutoff}
+            />
           </div>
 
-          {/* Right Column: 360° Horizon Radar / Surface Map Toggle (7 cols) */}
-          <div className="lg:col-span-7 space-y-3">
-            <div className="flex items-center justify-end gap-2 font-mono text-xs">
-              <button
-                onClick={() => setActiveViewTab('radar')}
-                className={`px-3 py-1.5 rounded-lg border transition-colors ${
-                  activeViewTab === 'radar'
-                    ? 'bg-sky-500/20 text-sky-400 border-sky-500/40 font-bold'
-                    : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                🛰️ Sky Horizon Radar
-              </button>
-              <button
-                onClick={() => setActiveViewTab('surface')}
-                className={`px-3 py-1.5 rounded-lg border transition-colors ${
-                  activeViewTab === 'surface'
-                    ? 'bg-sky-500/20 text-sky-400 border-sky-500/40 font-bold'
-                    : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                🗺️ South Pole Surface Map
-              </button>
+          {/* Right Column: 360° Horizon Radar / Surface Map (7 cols) */}
+          <div className="lg:col-span-7 space-y-2">
+            <div className="flex items-center justify-between font-mono text-xs">
+              <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">
+                TACTICAL HORIZON VISUALIZER
+              </span>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => setActiveViewTab('radar')}
+                  className={`px-2.5 py-1 rounded text-xs transition-colors ${
+                    activeViewTab === 'radar'
+                      ? 'bg-sky-600 text-white font-bold border border-sky-400/50'
+                      : 'bg-[#090e18] border border-[#1b263b] text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  🛰️ Sky Horizon Radar
+                </button>
+                <button
+                  onClick={() => setActiveViewTab('surface')}
+                  className={`px-2.5 py-1 rounded text-xs transition-colors ${
+                    activeViewTab === 'surface'
+                      ? 'bg-sky-600 text-white font-bold border border-sky-400/50'
+                      : 'bg-[#090e18] border border-[#1b263b] text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  🗺️ South Pole Surface Map
+                </button>
+              </div>
             </div>
 
             {activeViewTab === 'radar' ? (
@@ -164,14 +164,14 @@ export default function App() {
           </div>
         </div>
 
-        {/* Go/No-Go Mission Status & Telemetry Breakdown */}
-        <StatusCard
-          telemetry={telemetry}
-          sunTerrainCutoff={sunTerrainCutoff}
-          earthTerrainCutoff={earthTerrainCutoff}
+        {/* Row 2: Temporal Scrubber & Playback Timeline (Directly Underneath Visualizer) */}
+        <TimelineControls
+          currentDate={currentDate}
+          onChangeDate={setCurrentDate}
+          forecastSamples={forecastSamples}
         />
 
-        {/* Multi-Site Comparative Leaderboard */}
+        {/* Row 3: Multi-Site Comparative Leaderboard */}
         <SiteLeaderboard
           currentDate={currentDate}
           selectedSiteId={selectedSite.id}
@@ -180,12 +180,17 @@ export default function App() {
           showArchived2022={showArchived2022}
         />
 
-        {/* Temporal Scrubber & Playback Timeline */}
-        <TimelineControls
-          currentDate={currentDate}
-          onChangeDate={setCurrentDate}
-          forecastSamples={forecastSamples}
-        />
+        {/* Row 4: Quick Scientific Briefing Box */}
+        <div className="bg-[#090e18] border border-[#1b263b] rounded-lg p-3 text-xs font-mono text-slate-400 space-y-1">
+          <div className="text-sky-400 font-semibold flex items-center gap-1.5 text-[11px]">
+            <span>ℹ️ NASA ARTEMIS III POLAR FLIGHT CRITERIA</span>
+          </div>
+          <p className="leading-relaxed text-[10px] text-slate-400">
+            The Moon's axis is tilted only 1.54°. South Pole crater rims experience grazing solar paths that sweep
+            360° horizontally. Artemis III operations require persistent Sun for lander solar array power and direct
+            line-of-sight to Earth for unassisted real-time telemetry.
+          </p>
+        </div>
 
         {/* Official Mission Report Modal */}
         <MissionReportModal

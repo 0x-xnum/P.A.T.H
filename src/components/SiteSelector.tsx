@@ -157,18 +157,18 @@ export const SiteSelector: React.FC<SiteSelectorProps> = ({
   const isCurrentCustom = selectedSite.category === 'custom';
 
   return (
-    <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-5 shadow-xl space-y-4">
+    <div className="bg-[#090e18] border border-[#1b263b] rounded-lg p-3.5 space-y-3 font-mono">
       {/* Header with Custom Button */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-sm font-semibold tracking-wide text-slate-300 uppercase font-mono">
-            Target Landing Zone
+          <h2 className="text-xs font-bold tracking-wider text-slate-300 uppercase">
+            TARGET LANDING ZONE
           </h2>
-          <p className="text-xs text-slate-500 font-mono">NASA Artemis III Evaluation Frame</p>
+          <p className="text-[10px] text-slate-500">NASA Artemis III Evaluation Frame</p>
         </div>
         <button
           onClick={handleOpenCreateModal}
-          className="text-xs font-mono text-sky-400 hover:text-sky-300 px-2.5 py-1 rounded bg-sky-950/60 border border-sky-800/80 transition-colors"
+          className="text-[11px] text-sky-400 hover:text-sky-300 px-2.5 py-1 rounded bg-[#0b1626] border border-[#203957] transition-colors"
         >
           + Custom Target
         </button>

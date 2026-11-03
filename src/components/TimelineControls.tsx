@@ -140,19 +140,19 @@ export const TimelineControls: React.FC<TimelineControlsProps> = ({
   const dialAngle = ((currentTimestamp / (24 * 3600 * 1000)) * 360) % 360;
 
   return (
-    <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-5 shadow-xl space-y-4">
+    <div className="bg-[#090e18] border border-[#1b263b] rounded-lg p-3.5 space-y-3 font-mono">
       {/* Header & Simulation status */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-[#1b263b] pb-2.5">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-sm font-semibold tracking-wide text-slate-300 uppercase font-mono">
-              Mission Timeline &amp; Epoch Scrubber
+            <h2 className="text-xs font-bold tracking-wider text-slate-300 uppercase">
+              TIME CONDUCTOR // MASTER SIMULATION BUS
             </h2>
-            <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-sky-950 border border-sky-800 text-sky-300">
+            <span className="px-1.5 py-0.2 rounded text-[9px] bg-sky-950/80 border border-sky-800 text-sky-300 uppercase">
               UTC SYNCHRONIZED
             </span>
           </div>
-          <p className="text-xs text-slate-500 font-mono">
+          <p className="text-[10px] text-slate-500">
             Direct UTC manual entry, precision aerospace jog dial &amp; orbital progression
           </p>
         </div>
