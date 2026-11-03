@@ -8,14 +8,22 @@ interface LunarSurfaceMapProps {
   currentDate: Date;
   selectedSite: LandingSite;
   onSelectSite: (site: LandingSite) => void;
+  customSites: LandingSite[];
+  showArchived2022: boolean;
 }
 
 export const LunarSurfaceMap: React.FC<LunarSurfaceMapProps> = ({
   currentDate,
   selectedSite,
   onSelectSite,
+  customSites,
+  showArchived2022,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  const visibleOfficialSites = showArchived2022
+    ? ARTEMIS_CANDIDATE_SITES
+    : ARTEMIS_CANDIDATE_SITES.filter((s) => s.category === '2024-refined');
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -48,7 +56,6 @@ export const LunarSurfaceMap: React.FC<LunarSurfaceMapProps> = ({
 
     // Map latitude (-90 at center to -83 at outer edge) to canvas radius
     const latToRadius = (lat: number): number => {
-      // lat is between -90 and -83
       const delta = Math.abs(lat) - 83; // 7 at -90, 0 at -83
       const clampedDelta = Math.max(0, Math.min(7, 7 - delta));
       return (clampedDelta / 7) * maxRadius;
@@ -57,7 +64,6 @@ export const LunarSurfaceMap: React.FC<LunarSurfaceMapProps> = ({
     // Convert (lat, lon) to canvas (x, y) in polar stereographic projection
     const lunarCoordsToCanvas = (lat: number, lon: number): [number, number] => {
       const radius = latToRadius(lat);
-      // lon=0 is straight up, positive lon goes counter-clockwise/clockwise
       const angleRad = ((lon - 90) * Math.PI) / 180;
       const x = centerX + radius * Math.cos(angleRad);
       const y = centerY + radius * Math.sin(angleRad);
@@ -88,7 +94,7 @@ export const LunarSurfaceMap: React.FC<LunarSurfaceMapProps> = ({
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
-    // Prominent permanently shadowed craters (simulated geographic crater outlines)
+    // Prominent permanently shadowed craters
     const majorCraters = [
       { name: 'Shackleton', lat: -89.9, lon: 0.0, radiusKm: 10 },
       { name: 'Faustini', lat: -87.3, lon: 77.0, radiusKm: 19 },
@@ -99,25 +105,21 @@ export const LunarSurfaceMap: React.FC<LunarSurfaceMapProps> = ({
       { name: 'Nobile', lat: -85.2, lon: 53.5, radiusKm: 36 },
     ];
 
-    // Scale km to canvas pixels (83°S to 90°S = 7 degrees = ~212 km surface distance)
     const kmToPixels = maxRadius / 212;
 
     majorCraters.forEach((crater) => {
       const [cx, cy] = lunarCoordsToCanvas(crater.lat, crater.lon);
       const cr = crater.radiusKm * kmToPixels;
 
-      // Dark shadow fill inside crater
       ctx.beginPath();
       ctx.arc(cx, cy, Math.max(cr, 3), 0, 2 * Math.PI);
       ctx.fillStyle = 'rgba(2, 6, 23, 0.85)';
       ctx.fill();
 
-      // Rim outline
       ctx.strokeStyle = 'rgba(100, 116, 139, 0.45)';
       ctx.lineWidth = 1;
       ctx.stroke();
 
-      // Crater Label
       ctx.fillStyle = 'rgba(148, 163, 184, 0.65)';
       ctx.font = '8px monospace';
       ctx.textAlign = 'center';
@@ -154,8 +156,8 @@ export const LunarSurfaceMap: React.FC<LunarSurfaceMapProps> = ({
     ctx.font = 'bold 9px monospace';
     ctx.fillText('☀️ SUN VEC', ax, ay - 6);
 
-    // Plot all Artemis Candidate Sites as interactive markers
-    ARTEMIS_CANDIDATE_SITES.forEach((site) => {
+    // Plot visible official candidate sites
+    visibleOfficialSites.forEach((site) => {
       const [sx, sy] = lunarCoordsToCanvas(site.coordinates.latitude, site.coordinates.longitude);
       const isSelected = site.id === selectedSite.id;
       const telemetry = sampleTelemetry(site, currentDate);
@@ -188,52 +190,56 @@ export const LunarSurfaceMap: React.FC<LunarSurfaceMapProps> = ({
       ctx.stroke();
 
       // Site Name Label
-      ctx.fillStyle = isSelected ? '#38bdf8' : '#cbd5e1';
+      ctx.fillStyle = isSelected ? '#38bdf8' : site.category === '2022-historical' ? '#94a3b8' : '#cbd5e1';
       ctx.font = isSelected ? 'bold 9px monospace' : '8px monospace';
       ctx.textAlign = 'center';
       ctx.fillText(site.name.split(' ')[0], sx, sy - 8);
     });
 
-    // If selectedSite is custom (outside official list), draw glowing tactical targeting crosshair!
-    const isCustom = !ARTEMIS_CANDIDATE_SITES.some((s) => s.id === selectedSite.id);
-    if (isCustom && Math.abs(selectedSite.coordinates.latitude) >= 83) {
-      const [cx, cy] = lunarCoordsToCanvas(selectedSite.coordinates.latitude, selectedSite.coordinates.longitude);
-      const customTelemetry = sampleTelemetry(selectedSite, currentDate);
+    // Plot all saved custom sites (Cyan tactical pins)
+    customSites.forEach((site) => {
+      if (Math.abs(site.coordinates.latitude) < 83) return;
+      const [cx, cy] = lunarCoordsToCanvas(site.coordinates.latitude, site.coordinates.longitude);
+      const isSelected = site.id === selectedSite.id;
+      const telemetry = sampleTelemetry(site, currentDate);
+
       let pinColor = '#ef4444';
-      if (customTelemetry.windowRating === 'optimal') pinColor = '#10b981';
-      else if (customTelemetry.windowRating === 'marginal') pinColor = '#f59e0b';
+      if (telemetry.windowRating === 'optimal') pinColor = '#10b981';
+      else if (telemetry.windowRating === 'marginal') pinColor = '#f59e0b';
 
-      // Crosshair lines
-      ctx.beginPath();
-      ctx.moveTo(cx - 15, cy);
-      ctx.lineTo(cx + 15, cy);
-      ctx.moveTo(cx, cy - 15);
-      ctx.lineTo(cx, cy + 15);
-      ctx.strokeStyle = '#38bdf8';
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
+      if (isSelected) {
+        // Glowing crosshair lines
+        ctx.beginPath();
+        ctx.moveTo(cx - 14, cy);
+        ctx.lineTo(cx + 14, cy);
+        ctx.moveTo(cx, cy - 14);
+        ctx.lineTo(cx, cy + 14);
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
 
-      // Targeting ring
-      ctx.beginPath();
-      ctx.arc(cx, cy, 10, 0, 2 * Math.PI);
-      ctx.strokeStyle = '#38bdf8';
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(cx, cy, 11, 0, 2 * Math.PI);
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
 
-      // Inner beacon dot
+      // Custom marker diamond/dot
       ctx.beginPath();
-      ctx.arc(cx, cy, 4, 0, 2 * Math.PI);
-      ctx.fillStyle = pinColor;
+      ctx.arc(cx, cy, isSelected ? 5.5 : 4, 0, 2 * Math.PI);
+      ctx.fillStyle = isSelected ? pinColor : '#0284c7';
       ctx.fill();
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 1;
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 1.5;
       ctx.stroke();
 
-      ctx.fillStyle = '#38bdf8';
-      ctx.font = 'bold 9px monospace';
+      // Custom site label
+      ctx.fillStyle = isSelected ? '#38bdf8' : '#7dd3fc';
+      ctx.font = isSelected ? 'bold 9px monospace' : '8px monospace';
       ctx.textAlign = 'center';
-      ctx.fillText('TARGET PIN', cx, cy - 13);
-    }
+      ctx.fillText(site.name.length > 12 ? site.name.slice(0, 10) + '..' : site.name, cx, cy - 11);
+    });
 
     // South Pole center dot (90° S)
     ctx.beginPath();
@@ -245,9 +251,9 @@ export const LunarSurfaceMap: React.FC<LunarSurfaceMapProps> = ({
     ctx.font = 'bold 9px monospace';
     ctx.textAlign = 'center';
     ctx.fillText('90°S POLE', centerX, centerY + 14);
-  }, [currentDate, selectedSite]);
+  }, [currentDate, selectedSite, customSites, visibleOfficialSites]);
 
-  // Click on canvas to select nearest site OR drop a custom tactical target pin
+  // Click on canvas to select nearest site OR drop a persistent custom tactical target pin
   const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -268,7 +274,6 @@ export const LunarSurfaceMap: React.FC<LunarSurfaceMapProps> = ({
     const centerY = height / 2;
     const maxRadius = Math.min(centerX, centerY) - 25;
 
-    // Helper: convert (lat, lon) to canvas (x, y)
     const latToRadius = (lat: number): number => {
       const delta = Math.abs(lat) - 83;
       const clampedDelta = Math.max(0, Math.min(7, 7 - delta));
@@ -276,9 +281,23 @@ export const LunarSurfaceMap: React.FC<LunarSurfaceMapProps> = ({
     };
 
     let nearestSite: LandingSite | null = null;
-    let minDistance = 25; // click hit radius in pixels
+    let minDistance = 22; // click hit radius in pixels
 
-    ARTEMIS_CANDIDATE_SITES.forEach((site) => {
+    // Check custom sites first
+    customSites.forEach((site) => {
+      const radius = latToRadius(site.coordinates.latitude);
+      const angleRad = ((site.coordinates.longitude - 90) * Math.PI) / 180;
+      const sx = centerX + radius * Math.cos(angleRad);
+      const sy = centerY + radius * Math.sin(angleRad);
+      const dist = Math.hypot(actualX - sx, actualY - sy);
+      if (dist < minDistance) {
+        minDistance = dist;
+        nearestSite = site;
+      }
+    });
+
+    // Check visible official candidate sites
+    visibleOfficialSites.forEach((site) => {
       const radius = latToRadius(site.coordinates.latitude);
       const angleRad = ((site.coordinates.longitude - 90) * Math.PI) / 180;
       const sx = centerX + radius * Math.cos(angleRad);
@@ -294,17 +313,15 @@ export const LunarSurfaceMap: React.FC<LunarSurfaceMapProps> = ({
     if (nearestSite) {
       onSelectSite(nearestSite);
     } else {
-      // User clicked on open terrain / crater: Drop a custom tactical target pin!
+      // User clicked on open terrain: Drop a custom tactical target pin!
       const dx = actualX - centerX;
       const dy = actualY - centerY;
       const clickDist = Math.hypot(dx, dy);
 
       if (clickDist <= maxRadius) {
         // Inverse stereographic projection:
-        // clickDist / maxRadius = (90 - |lat|) / 7
         const latVal = -(90 - (clickDist / maxRadius) * 7);
 
-        // Angle in radians: angleRad = ((lon - 90) * Math.PI) / 180
         const angleRad = Math.atan2(dy, dx);
         let lonDeg = (angleRad * 180) / Math.PI + 90;
         if (lonDeg < 0) lonDeg += 360;
@@ -312,14 +329,14 @@ export const LunarSurfaceMap: React.FC<LunarSurfaceMapProps> = ({
 
         const customTargetSite: LandingSite = {
           id: `custom-map-${Date.now()}`,
-          name: `Target (${Math.abs(latVal).toFixed(2)}°S, ${lonDeg.toFixed(1)}°E)`,
-          designation: 'TACTICAL-PIN-01',
+          name: `Pin (${Math.abs(latVal).toFixed(2)}°S, ${lonDeg.toFixed(1)}°E)`,
+          designation: `MAP-TGT-${(customSites.length + 1).toString().padStart(2, '0')}`,
           coordinates: {
             latitude: parseFloat(latVal.toFixed(3)),
             longitude: parseFloat(lonDeg.toFixed(3)),
             elevationMeters: 1000,
           },
-          description: `Custom waypoint designated via 2D Lunar South Pole interactive stereographic targeting.`,
+          description: `Custom waypoint designated via 2D Lunar South Pole stereographic map targeting.`,
           rimHeightMeters: 1800,
           permanentlyShadowedNearby: Math.abs(latVal) > 86,
           isOfficialArtemisCandidate: false,
@@ -340,7 +357,9 @@ export const LunarSurfaceMap: React.FC<LunarSurfaceMapProps> = ({
           <h2 className="text-sm font-semibold tracking-wide text-slate-300 uppercase font-mono">
             Lunar South Pole Surface Map
           </h2>
-          <p className="text-xs text-slate-500 font-mono">Polar Stereographic Projection (83°S to 90°S Pole)</p>
+          <p className="text-xs text-slate-500 font-mono">
+            Polar Stereographic Projection (83°S to 90°S Pole) • {customSites.length} Custom Target{customSites.length !== 1 ? 's' : ''}
+          </p>
         </div>
         <div className="flex items-center gap-3 text-xs font-mono">
           <div className="flex items-center gap-1.5">
@@ -368,7 +387,7 @@ export const LunarSurfaceMap: React.FC<LunarSurfaceMapProps> = ({
       </div>
 
       <div className="w-full text-center text-xs font-mono text-slate-400 mt-2 flex flex-col sm:flex-row items-center justify-between gap-2 px-2">
-        <span>Click any candidate marker, or click anywhere on the Moon to drop a custom target pin</span>
+        <span>Click any marker to inspect, or click anywhere on the Moon to drop a persistent target pin</span>
         <span className="text-sky-400 font-semibold">{selectedSite.name}</span>
       </div>
     </div>
