@@ -39,6 +39,11 @@ export const Header: React.FC<HeaderProps> = ({ currentDate, selectedSiteName, o
             <span className="text-slate-200 font-semibold">{formattedUtc}</span>
           </div>
 
+          <div className="hidden lg:flex items-center gap-1.5 text-slate-500 text-[11px]">
+            <span className="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800">LOLA HORIZON MASKS</span>
+            <span className="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800">IAU LUNAR TOPO-FRAME</span>
+          </div>
+
           <button
             onClick={onOpenReport}
             className="bg-sky-600 hover:bg-sky-500 text-white font-bold px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors shadow-lg shadow-sky-600/20"

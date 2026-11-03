@@ -4,28 +4,37 @@ import { SOLAR_CONSTANT_W_M2 } from '../utils/analyzer';
 
 interface StatusCardProps {
   telemetry: TelemetrySample;
+  sunTerrainCutoff: number;
+  earthTerrainCutoff: number;
 }
 
-export const StatusCard: React.FC<StatusCardProps> = ({ telemetry }) => {
+export const StatusCard: React.FC<StatusCardProps> = ({
+  telemetry,
+  sunTerrainCutoff,
+  earthTerrainCutoff,
+}) => {
   const { windowRating, solarIlluminationFraction, dteStatus, sun, earth, reasons } = telemetry;
 
-  // Compute estimated incident solar power on a standard 10 m^2 vertical solar array
+  // Compute estimated incident solar power on a standard 10 m^2 vertical solar array (4-sided polar configuration)
   const solarFlux = Math.round(solarIlluminationFraction * SOLAR_CONSTANT_W_M2);
   const totalPowerWatts = Math.round(solarFlux * 10 * 0.32); // 32% high-efficiency triple-junction cells
+
+  const sunClearance = sun.elevation - sunTerrainCutoff;
+  const earthClearance = earth.elevation - earthTerrainCutoff;
 
   // Status banner styling & wording
   let bannerBg = 'bg-rose-950/40 border-rose-800 text-rose-300';
   let badgeColor = 'bg-rose-500 text-white';
-  let statusTitle = 'NO-GO: CRITICAL OCCLUSION HAZARD';
+  let statusTitle = 'NO-GO: TOPOGRAPHIC OCCLUSION HAZARD';
 
   if (windowRating === 'optimal') {
     bannerBg = 'bg-emerald-950/40 border-emerald-800 text-emerald-300';
     badgeColor = 'bg-emerald-500 text-black';
-    statusTitle = 'GO: OPTIMAL LANDING & POWER WINDOW';
+    statusTitle = 'GO: OPTIMAL ILLUMINATION & DTE WINDOW';
   } else if (windowRating === 'marginal') {
     bannerBg = 'bg-amber-950/40 border-amber-800 text-amber-300';
     badgeColor = 'bg-amber-500 text-black';
-    statusTitle = 'CAUTION: MARGINAL POWER / COMMS MARGIN';
+    statusTitle = 'CAUTION: GRAZING POWER / MARGINAL LINE-OF-SIGHT';
   }
 
   return (
@@ -37,7 +46,7 @@ export const StatusCard: React.FC<StatusCardProps> = ({ telemetry }) => {
             <span className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded ${badgeColor}`}>
               {windowRating.toUpperCase()}
             </span>
-            <span className="text-xs font-mono tracking-wider opacity-80">MISSION DISPATCH ASSESSMENT</span>
+            <span className="text-xs font-mono tracking-wider opacity-80">MISSION OPERATIONAL SCREENING</span>
           </div>
           <h3 className="text-base font-bold font-mono tracking-tight">{statusTitle}</h3>
         </div>
@@ -53,7 +62,7 @@ export const StatusCard: React.FC<StatusCardProps> = ({ telemetry }) => {
         {/* Photovoltaic Generation */}
         <div className="bg-slate-950/70 border border-slate-800/80 p-3.5 rounded-lg space-y-2">
           <div className="text-amber-400 font-semibold flex items-center justify-between">
-            <span>⚡ SOLAR POWER MATRIX</span>
+            <span>⚡ PHOTOVOLTAIC YIELD</span>
             <span className="text-[10px] text-slate-500">10m² Vertical Array</span>
           </div>
           <div className="text-2xl font-bold text-slate-100">
@@ -65,13 +74,15 @@ export const StatusCard: React.FC<StatusCardProps> = ({ telemetry }) => {
               <span className="text-slate-200">{solarFlux} W/m²</span>
             </div>
             <div className="flex justify-between">
-              <span>Illumination Factor:</span>
-              <span className="text-slate-200">{(solarIlluminationFraction * 100).toFixed(1)}%</span>
-            </div>
-            <div className="flex justify-between">
               <span>Sun Elevation:</span>
               <span className={sun.elevation > 0 ? 'text-amber-300' : 'text-rose-400'}>
                 {sun.elevation > 0 ? '+' : ''}{sun.elevation.toFixed(2)}°
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span>Terrain Clearance:</span>
+              <span className={sunClearance > 0 ? 'text-emerald-400 font-semibold' : 'text-rose-400 font-semibold'}>
+                {sunClearance > 0 ? '+' : ''}{sunClearance.toFixed(2)}°
               </span>
             </div>
           </div>
@@ -80,16 +91,16 @@ export const StatusCard: React.FC<StatusCardProps> = ({ telemetry }) => {
         {/* Radio DTE Communications */}
         <div className="bg-slate-950/70 border border-slate-800/80 p-3.5 rounded-lg space-y-2">
           <div className="text-cyan-400 font-semibold flex items-center justify-between">
-            <span>📡 DIRECT-TO-EARTH LINK</span>
-            <span className="text-[10px] text-slate-500">DSN 34m Station</span>
+            <span>📡 DIRECT-TO-EARTH (DTE)</span>
+            <span className="text-[10px] text-slate-500">Geometric Line-of-Sight</span>
           </div>
           <div className="text-2xl font-bold text-slate-100 uppercase">
             {dteStatus === 'connected' ? (
-              <span className="text-emerald-400">NOMINAL</span>
+              <span className="text-emerald-400">CLEAR LINE-OF-SIGHT</span>
             ) : dteStatus === 'marginal' ? (
-              <span className="text-amber-400">DEGRADED</span>
+              <span className="text-amber-400">GRAZING RIDGE</span>
             ) : (
-              <span className="text-rose-400">SEVERED</span>
+              <span className="text-rose-400">TERRAIN OCCLUDED</span>
             )}
           </div>
           <div className="space-y-1 text-[11px] text-slate-400 pt-1 border-t border-slate-800/80">
@@ -100,13 +111,13 @@ export const StatusCard: React.FC<StatusCardProps> = ({ telemetry }) => {
               </span>
             </div>
             <div className="flex justify-between">
-              <span>Distance to Earth:</span>
-              <span className="text-slate-200">{earth.distanceKm.toLocaleString()} km</span>
+              <span>Local Ridge Mask:</span>
+              <span className="text-slate-200">+{earthTerrainCutoff.toFixed(2)}°</span>
             </div>
             <div className="flex justify-between">
-              <span>Link Margin (est):</span>
-              <span className="text-slate-200">
-                {earth.elevation > 1 ? '+14.2 dB' : earth.elevation > 0 ? '+2.8 dB' : '-18.5 dB'}
+              <span>Topographic Margin:</span>
+              <span className={earthClearance > 0 ? 'text-emerald-400 font-semibold' : 'text-rose-400 font-semibold'}>
+                {earthClearance > 0 ? '+' : ''}{earthClearance.toFixed(2)}°
               </span>
             </div>
           </div>
@@ -115,8 +126,8 @@ export const StatusCard: React.FC<StatusCardProps> = ({ telemetry }) => {
         {/* Environmental Hazards */}
         <div className="bg-slate-950/70 border border-slate-800/80 p-3.5 rounded-lg space-y-2">
           <div className="text-purple-400 font-semibold flex items-center justify-between">
-            <span>🛡️ FLIGHT RULES CHECK</span>
-            <span className="text-[10px] text-slate-500">NASA Standards</span>
+            <span>🛡️ TOPOGRAPHIC EVALUATION</span>
+            <span className="text-[10px] text-slate-500">LOLA Profile Rules</span>
           </div>
           <div className="space-y-1.5 pt-1 text-[11px] text-slate-300">
             {reasons.map((reason, idx) => (

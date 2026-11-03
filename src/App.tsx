@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { LandingSite } from './types';
 import { DEFAULT_LANDING_SITE } from './data/landingSites';
 import { sampleTelemetry, evaluateWindowForecast } from './utils/analyzer';
+import { getTerrainElevationCutoff } from './data/terrainMasks';
 import { Header } from './components/Header';
 import { SiteSelector } from './components/SiteSelector';
 import { HorizonRadar } from './components/HorizonRadar';
@@ -29,6 +30,14 @@ export default function App() {
   const forecastSamples = useMemo(() => {
     return evaluateWindowForecast(selectedSite, currentDate, 14, 6);
   }, [selectedSite, currentDate]);
+
+  const sunTerrainCutoff = useMemo(() => {
+    return getTerrainElevationCutoff(selectedSite.id, telemetry.sun.azimuth);
+  }, [selectedSite.id, telemetry.sun.azimuth]);
+
+  const earthTerrainCutoff = useMemo(() => {
+    return getTerrainElevationCutoff(selectedSite.id, telemetry.earth.azimuth);
+  }, [selectedSite.id, telemetry.earth.azimuth]);
 
   return (
     <div className="min-h-screen bg-[#07090e] text-slate-100 flex flex-col font-sans selection:bg-sky-500 selection:text-black">
@@ -102,7 +111,11 @@ export default function App() {
         </div>
 
         {/* Go/No-Go Mission Status & Telemetry Breakdown */}
-        <StatusCard telemetry={telemetry} />
+        <StatusCard
+          telemetry={telemetry}
+          sunTerrainCutoff={sunTerrainCutoff}
+          earthTerrainCutoff={earthTerrainCutoff}
+        />
 
         {/* Multi-Site Comparative Leaderboard */}
         <SiteLeaderboard
