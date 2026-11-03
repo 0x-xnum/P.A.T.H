@@ -4,9 +4,15 @@ interface HeaderProps {
   currentDate: Date;
   selectedSiteName: string;
   onOpenReport: () => void;
+  onOpenScience: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ currentDate, selectedSiteName, onOpenReport }) => {
+export const Header: React.FC<HeaderProps> = ({
+  currentDate,
+  selectedSiteName,
+  onOpenReport,
+  onOpenScience,
+}) => {
   const formattedUtc = currentDate.toUTCString();
 
   return (
@@ -43,6 +49,14 @@ export const Header: React.FC<HeaderProps> = ({ currentDate, selectedSiteName, o
             <span className="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800">LOLA HORIZON MASKS</span>
             <span className="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800">IAU LUNAR TOPO-FRAME</span>
           </div>
+
+          <button
+            onClick={onOpenScience}
+            className="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-sky-400 px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-colors"
+          >
+            <span>🔬</span>
+            <span>Science &amp; Verification</span>
+          </button>
 
           <button
             onClick={onOpenReport}
