@@ -24,9 +24,9 @@ export const ScienceBriefModal: React.FC<ScienceBriefModalProps> = ({ isOpen, on
       date: '2026-10-15 12:00 UTC',
       target: 'Earth',
       site: 'Peak near Cabeus B',
-      horizonsElev: 6.45,
-      pathElev: 6.21,
-      delta: 0.24,
+      horizonsElev: 3.95,
+      pathElev: 3.77,
+      delta: 0.18,
       status: 'VERIFIED',
     },
     {
