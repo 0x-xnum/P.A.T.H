@@ -8,6 +8,7 @@ interface SiteSelectorProps {
   onSelectSite: (site: LandingSite) => void;
   customSites: LandingSite[];
   onCreateCustomSite: (site: LandingSite) => void;
+  onUpdateCustomSite: (site: LandingSite) => void;
   onDeleteCustomSite: (siteId: string) => void;
   showArchived2022: boolean;
   onToggleArchived2022: (val: boolean) => void;
@@ -18,11 +19,13 @@ export const SiteSelector: React.FC<SiteSelectorProps> = ({
   onSelectSite,
   customSites,
   onCreateCustomSite,
+  onUpdateCustomSite,
   onDeleteCustomSite,
   showArchived2022,
   onToggleArchived2022,
 }) => {
   const [showCustomModal, setShowCustomModal] = useState(false);
+  const [editingSiteId, setEditingSiteId] = useState<string | null>(null);
   const [customLat, setCustomLat] = useState('-88.50');
   const [customLon, setCustomLon] = useState('180.00');
   const [customElev, setCustomElev] = useState('1500');
@@ -39,6 +42,26 @@ export const SiteSelector: React.FC<SiteSelectorProps> = ({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [showCustomModal]);
+
+  const handleOpenCreateModal = () => {
+    setValidationError(null);
+    setEditingSiteId(null);
+    setCustomName(`Custom Target ${customSites.length + 1}`);
+    setCustomLat('-88.50');
+    setCustomLon('180.00');
+    setCustomElev('1500');
+    setShowCustomModal(true);
+  };
+
+  const handleOpenEditModal = (site: LandingSite) => {
+    setValidationError(null);
+    setEditingSiteId(site.id);
+    setCustomName(site.name);
+    setCustomLat(site.coordinates.latitude.toString());
+    setCustomLon(site.coordinates.longitude.toString());
+    setCustomElev((site.coordinates.elevationMeters ?? 0).toString());
+    setShowCustomModal(true);
+  };
 
   const handleApplyCustom = (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,25 +110,47 @@ export const SiteSelector: React.FC<SiteSelectorProps> = ({
 
     const normalizedLon = normalizeAngle(lon);
 
-    const newCustomSite: LandingSite = {
-      id: `custom-${Date.now()}`,
-      name: trimmedName,
-      designation: `USR-TGT-${(customSites.length + 1).toString().padStart(2, '0')}`,
-      coordinates: {
-        latitude: parseFloat(lat.toFixed(3)),
-        longitude: parseFloat(normalizedLon.toFixed(3)),
-        elevationMeters: Math.round(elev),
-      },
-      description: `User-defined landing coordinates (${lat.toFixed(2)}°S, ${normalizedLon.toFixed(2)}°E) evaluated in lunar topocentric horizon frame.`,
-      rimHeightMeters: 2000,
-      permanentlyShadowedNearby: Math.abs(lat) > 85,
-      isOfficialArtemisCandidate: false,
-      category: 'custom',
-      scientificValue: 'Custom landing site evaluated for direct solar illumination and Earth line-of-sight margins.',
-      officialCitation: 'User Defined Target (Project P.A.T.H.)',
-    };
+    if (editingSiteId) {
+      const existing = customSites.find((s) => s.id === editingSiteId);
+      const updatedSite: LandingSite = {
+        ...(existing ?? selectedSite),
+        id: editingSiteId,
+        name: trimmedName,
+        coordinates: {
+          latitude: parseFloat(lat.toFixed(3)),
+          longitude: parseFloat(normalizedLon.toFixed(3)),
+          elevationMeters: Math.round(elev),
+        },
+        description: `User-defined landing coordinates (${lat.toFixed(2)}°S, ${normalizedLon.toFixed(2)}°E) evaluated in lunar topocentric horizon frame.`,
+        rimHeightMeters: 2000,
+        permanentlyShadowedNearby: Math.abs(lat) > 85,
+        isOfficialArtemisCandidate: false,
+        category: 'custom',
+        scientificValue: 'Custom landing site evaluated for direct solar illumination and Earth line-of-sight margins.',
+        officialCitation: 'User Defined Target (Project P.A.T.H.)',
+      };
+      onUpdateCustomSite(updatedSite);
+    } else {
+      const newCustomSite: LandingSite = {
+        id: `custom-${Date.now()}`,
+        name: trimmedName,
+        designation: `USR-TGT-${(customSites.length + 1).toString().padStart(2, '0')}`,
+        coordinates: {
+          latitude: parseFloat(lat.toFixed(3)),
+          longitude: parseFloat(normalizedLon.toFixed(3)),
+          elevationMeters: Math.round(elev),
+        },
+        description: `User-defined landing coordinates (${lat.toFixed(2)}°S, ${normalizedLon.toFixed(2)}°E) evaluated in lunar topocentric horizon frame.`,
+        rimHeightMeters: 2000,
+        permanentlyShadowedNearby: Math.abs(lat) > 85,
+        isOfficialArtemisCandidate: false,
+        category: 'custom',
+        scientificValue: 'Custom landing site evaluated for direct solar illumination and Earth line-of-sight margins.',
+        officialCitation: 'User Defined Target (Project P.A.T.H.)',
+      };
+      onCreateCustomSite(newCustomSite);
+    }
 
-    onCreateCustomSite(newCustomSite);
     setShowCustomModal(false);
   };
 
@@ -122,10 +167,7 @@ export const SiteSelector: React.FC<SiteSelectorProps> = ({
           <p className="text-xs text-slate-500 font-mono">NASA Artemis III Evaluation Frame</p>
         </div>
         <button
-          onClick={() => {
-            setValidationError(null);
-            setShowCustomModal(true);
-          }}
+          onClick={handleOpenCreateModal}
           className="text-xs font-mono text-sky-400 hover:text-sky-300 px-2.5 py-1 rounded bg-sky-950/60 border border-sky-800/80 transition-colors"
         >
           + Custom Target
@@ -138,13 +180,22 @@ export const SiteSelector: React.FC<SiteSelectorProps> = ({
             Active Candidate Region
           </label>
           {isCurrentCustom && (
-            <button
-              onClick={() => onDeleteCustomSite(selectedSite.id)}
-              className="text-[11px] font-mono text-rose-400 hover:text-rose-300 flex items-center gap-1 transition-colors"
-              title="Delete this custom target"
-            >
-              <span>🗑️ Delete Custom Site</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => handleOpenEditModal(selectedSite)}
+                className="text-[11px] font-mono text-sky-400 hover:text-sky-300 flex items-center gap-1 transition-colors"
+                title="Edit this custom target"
+              >
+                <span>✏️ Edit Target</span>
+              </button>
+              <button
+                onClick={() => onDeleteCustomSite(selectedSite.id)}
+                className="text-[11px] font-mono text-rose-400 hover:text-rose-300 flex items-center gap-1 transition-colors"
+                title="Delete this custom target"
+              >
+                <span>🗑️ Delete</span>
+              </button>
+            </div>
           )}
         </div>
 
@@ -153,13 +204,11 @@ export const SiteSelector: React.FC<SiteSelectorProps> = ({
           value={selectedSite.id}
           onChange={(e) => {
             const val = e.target.value;
-            // Check in official sites first
             const foundOfficial = ARTEMIS_CANDIDATE_SITES.find((s) => s.id === val);
             if (foundOfficial) {
               onSelectSite(foundOfficial);
               return;
             }
-            // Check in custom sites
             const foundCustom = customSites.find((s) => s.id === val);
             if (foundCustom) {
               onSelectSite(foundCustom);
@@ -238,7 +287,7 @@ export const SiteSelector: React.FC<SiteSelectorProps> = ({
         </div>
       </div>
 
-      {/* Modal for Creating Custom Lunar Coordinates */}
+      {/* Modal for Creating or Editing Custom Lunar Coordinates */}
       {showCustomModal && (
         <div
           role="dialog"
@@ -249,7 +298,7 @@ export const SiteSelector: React.FC<SiteSelectorProps> = ({
           <div className="bg-slate-900 border border-slate-700 rounded-xl p-6 max-w-md w-full shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <h3 id="custom-coords-title" className="text-base font-bold text-white font-mono">
-                Define Custom Lunar Target
+                {editingSiteId ? 'Edit Custom Lunar Target' : 'Define Custom Lunar Target'}
               </h3>
               <button
                 onClick={() => setShowCustomModal(false)}
@@ -260,7 +309,9 @@ export const SiteSelector: React.FC<SiteSelectorProps> = ({
             </div>
 
             <p className="text-xs text-slate-400">
-              Input selenographic coordinates inside the Artemis South Pole envelope to simulate local topocentric horizon, solar flux, and Earth line-of-sight.
+              {editingSiteId
+                ? 'Update selenographic coordinates or elevation for this custom waypoint.'
+                : 'Input selenographic coordinates inside the Artemis South Pole envelope to simulate local topocentric horizon, solar flux, and Earth line-of-sight.'}
             </p>
 
             {validationError && (
@@ -358,17 +409,14 @@ export const SiteSelector: React.FC<SiteSelectorProps> = ({
                         key={site.id}
                         className="flex items-center justify-between bg-slate-950 px-2 py-1 rounded border border-slate-800 text-[10px]"
                       >
-                        <span className="text-slate-300 truncate max-w-[200px]">{site.name}</span>
+                        <span className="text-slate-300 truncate max-w-[180px]">{site.name}</span>
                         <div className="flex items-center gap-2">
                           <button
                             type="button"
-                            onClick={() => {
-                              onSelectSite(site);
-                              setShowCustomModal(false);
-                            }}
+                            onClick={() => handleOpenEditModal(site)}
                             className="text-sky-400 hover:underline"
                           >
-                            Select
+                            Edit
                           </button>
                           <button
                             type="button"
@@ -396,7 +444,7 @@ export const SiteSelector: React.FC<SiteSelectorProps> = ({
                   type="submit"
                   className="px-4 py-1.5 rounded bg-sky-600 text-white font-semibold hover:bg-sky-500 transition-colors shadow-lg shadow-sky-900/30"
                 >
-                  Save &amp; Evaluate
+                  {editingSiteId ? 'Update Target' : 'Save & Evaluate'}
                 </button>
               </div>
             </form>
