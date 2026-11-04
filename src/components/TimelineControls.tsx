@@ -15,21 +15,27 @@ export const TimelineControls: React.FC<TimelineControlsProps> = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(6); // hours per second
 
-  // Playback timer effect
-  useEffect(() => {
-    if (!isPlaying) return;
-
-    const interval = setInterval(() => {
-      onChangeDate(new Date(currentDate.getTime() + playbackSpeed * 3600 * 1000));
-    }, 200);
-
-    return () => clearInterval(interval);
-  }, [isPlaying, currentDate, playbackSpeed, onChangeDate]);
-
   // Window bounds for slider: Oct 2026 to Dec 2027
   const minTime = Date.UTC(2026, 9, 1, 0, 0, 0); // Oct 1, 2026
   const maxTime = Date.UTC(2027, 11, 31, 23, 59, 59); // Dec 31, 2027
   const currentTimestamp = currentDate.getTime();
+
+  // Playback timer effect with boundary clamp
+  useEffect(() => {
+    if (!isPlaying) return;
+
+    const interval = setInterval(() => {
+      const nextTime = currentDate.getTime() + playbackSpeed * 3600 * 1000;
+      if (nextTime >= maxTime) {
+        onChangeDate(new Date(maxTime));
+        setIsPlaying(false);
+      } else {
+        onChangeDate(new Date(nextTime));
+      }
+    }, 200);
+
+    return () => clearInterval(interval);
+  }, [isPlaying, currentDate, playbackSpeed, onChangeDate, maxTime]);
 
   const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTs = parseInt(e.target.value, 10);
@@ -112,10 +118,12 @@ export const TimelineControls: React.FC<TimelineControlsProps> = ({
                 else if (sample.windowRating === 'marginal') color = 'bg-amber-500/80';
 
                 return (
-                  <div
+                  <button
                     key={idx}
+                    type="button"
+                    aria-label={`Jump to ${sample.timestamp.slice(0, 10)}: ${sample.windowRating.toUpperCase()}`}
                     title={`${sample.timestamp.slice(0, 10)}: ${sample.windowRating.toUpperCase()}`}
-                    className={`flex-1 ${color} hover:opacity-80 transition-opacity cursor-pointer`}
+                    className={`flex-1 ${color} hover:opacity-80 transition-opacity focus:outline-none focus:ring-1 focus:ring-sky-400`}
                     onClick={() => onChangeDate(new Date(sample.timestamp))}
                   />
                 );

@@ -23,8 +23,14 @@ export const LunarSurfaceMap: React.FC<LunarSurfaceMapProps> = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const width = canvas.width;
-    const height = canvas.height;
+    const dpr = window.devicePixelRatio || 1;
+    const cssSize = 520;
+    canvas.width = cssSize * dpr;
+    canvas.height = cssSize * dpr;
+    ctx.scale(dpr, dpr);
+
+    const width = cssSize;
+    const height = cssSize;
     const centerX = width / 2;
     const centerY = height / 2;
     const maxRadius = Math.min(centerX, centerY) - 25;
@@ -260,8 +266,7 @@ export const LunarSurfaceMap: React.FC<LunarSurfaceMapProps> = ({
       <div className="relative my-2 cursor-pointer">
         <canvas
           ref={canvasRef}
-          width={520}
-          height={520}
+          style={{ width: 520, height: 520 }}
           onClick={handleCanvasClick}
           className="rounded-full border border-slate-800/80 max-w-full h-auto shadow-2xl bg-slate-950"
         />
