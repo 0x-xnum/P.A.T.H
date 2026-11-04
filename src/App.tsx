@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { LandingSite } from './types';
 import { DEFAULT_LANDING_SITE } from './data/landingSites';
 import { sampleTelemetry, evaluateWindowForecast } from './utils/analyzer';
@@ -18,6 +18,51 @@ export default function App() {
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [isScienceOpen, setIsScienceOpen] = useState(false);
   const [activeViewTab, setActiveViewTab] = useState<'radar' | 'surface'>('radar');
+  const [showArchived2022, setShowArchived2022] = useState<boolean>(false);
+
+  // Persistent custom sites stored across user sessions
+  const [customSites, setCustomSites] = useState<LandingSite[]>(() => {
+    try {
+      const saved = localStorage.getItem('path_custom_sites');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('path_custom_sites', JSON.stringify(customSites));
+    } catch {
+      // LocalStorage access failure fallback
+    }
+  }, [customSites]);
+
+  const handleCreateCustomSite = (site: LandingSite) => {
+    setCustomSites((prev) => {
+      const filtered = prev.filter((s) => s.id !== site.id);
+      return [site, ...filtered];
+    });
+    setSelectedSite(site);
+  };
+
+  const handleDeleteCustomSite = (siteId: string) => {
+    setCustomSites((prev) => prev.filter((s) => s.id !== siteId));
+    if (selectedSite.id === siteId) {
+      setSelectedSite(DEFAULT_LANDING_SITE);
+    }
+  };
+
+  const handleSelectOrAddSite = (site: LandingSite) => {
+    if (site.category === 'custom') {
+      setCustomSites((prev) => {
+        const exists = prev.some((s) => s.id === site.id);
+        return exists ? prev : [site, ...prev];
+      });
+    }
+    setSelectedSite(site);
+  };
+
   // Default simulation timestamp: October 15, 2026 at 12:00 UTC (Nominal Artemis III exploration frame)
   const [currentDate, setCurrentDate] = useState<Date>(
     new Date(Date.UTC(2026, 9, 15, 12, 0, 0))
@@ -54,9 +99,17 @@ export default function App() {
       {/* Main Mission Control Grid */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left Column: Target Site Selection & Site Details (4 cols) */}
+          {/* Left Column: Target Site Selection & Site Details (5 cols) */}
           <div className="lg:col-span-5 space-y-6">
-            <SiteSelector selectedSite={selectedSite} onSelectSite={setSelectedSite} />
+            <SiteSelector
+              selectedSite={selectedSite}
+              onSelectSite={handleSelectOrAddSite}
+              customSites={customSites}
+              onCreateCustomSite={handleCreateCustomSite}
+              onDeleteCustomSite={handleDeleteCustomSite}
+              showArchived2022={showArchived2022}
+              onToggleArchived2022={setShowArchived2022}
+            />
 
             {/* Quick Scientific Briefing Box */}
             <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-4 text-xs font-mono text-slate-400 space-y-2">
@@ -107,7 +160,9 @@ export default function App() {
               <LunarSurfaceMap
                 currentDate={currentDate}
                 selectedSite={selectedSite}
-                onSelectSite={setSelectedSite}
+                onSelectSite={handleSelectOrAddSite}
+                customSites={customSites}
+                showArchived2022={showArchived2022}
               />
             )}
           </div>
@@ -124,7 +179,9 @@ export default function App() {
         <SiteLeaderboard
           currentDate={currentDate}
           selectedSiteId={selectedSite.id}
-          onSelectSite={setSelectedSite}
+          onSelectSite={handleSelectOrAddSite}
+          customSites={customSites}
+          showArchived2022={showArchived2022}
         />
 
         {/* Temporal Scrubber & Playback Timeline */}

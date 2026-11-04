@@ -7,6 +7,8 @@ interface SiteLeaderboardProps {
   currentDate: Date;
   selectedSiteId: string;
   onSelectSite: (site: LandingSite) => void;
+  customSites: LandingSite[];
+  showArchived2022: boolean;
 }
 
 interface RankedSiteItem {
@@ -21,34 +23,44 @@ export const SiteLeaderboard: React.FC<SiteLeaderboardProps> = ({
   currentDate,
   selectedSiteId,
   onSelectSite,
+  customSites,
+  showArchived2022,
 }) => {
-  // Compute rankings across all 12 official Artemis sites for the current timestamp
-  const rankedSites: RankedSiteItem[] = ARTEMIS_CANDIDATE_SITES.map((site) => {
-    const telemetry = sampleTelemetry(site, currentDate);
+  const visibleOfficialSites = showArchived2022
+    ? ARTEMIS_CANDIDATE_SITES
+    : ARTEMIS_CANDIDATE_SITES.filter((s) => s.category === '2024-refined');
 
-    // Score Formulation:
-    // Sun Elevation weight: 50% (Max score if Sun > 1.5 deg)
-    // Earth Elevation weight: 50% (Max score if Earth > 3.0 deg)
-    let sunScore = 0;
-    if (telemetry.sun.elevation > 0) {
-      sunScore = Math.min(50, (telemetry.sun.elevation / 1.5) * 50);
-    }
+  const allSitesToRank = [...visibleOfficialSites, ...customSites];
 
-    let earthScore = 0;
-    if (telemetry.earth.elevation > 0) {
-      earthScore = Math.min(50, (telemetry.earth.elevation / 3.0) * 50);
-    }
+  // Compute rankings across all active candidates & custom targets for current timestamp
+  const rankedSites: RankedSiteItem[] = allSitesToRank
+    .map((site) => {
+      const telemetry = sampleTelemetry(site, currentDate);
 
-    const totalScore = Math.round(Math.max(0, Math.min(100, sunScore + earthScore)));
+      // Score Formulation:
+      // Sun Elevation weight: 50% (Max score if Sun > 1.5 deg)
+      // Earth Elevation weight: 50% (Max score if Earth > 3.0 deg)
+      let sunScore = 0;
+      if (telemetry.sun.elevation > 0) {
+        sunScore = Math.min(50, (telemetry.sun.elevation / 1.5) * 50);
+      }
 
-    return {
-      site,
-      score: totalScore,
-      sunElev: telemetry.sun.elevation,
-      earthElev: telemetry.earth.elevation,
-      rating: telemetry.windowRating,
-    };
-  }).sort((a, b) => b.score - a.score);
+      let earthScore = 0;
+      if (telemetry.earth.elevation > 0) {
+        earthScore = Math.min(50, (telemetry.earth.elevation / 3.0) * 50);
+      }
+
+      const totalScore = Math.round(Math.max(0, Math.min(100, sunScore + earthScore)));
+
+      return {
+        site,
+        score: totalScore,
+        sunElev: telemetry.sun.elevation,
+        earthElev: telemetry.earth.elevation,
+        rating: telemetry.windowRating,
+      };
+    })
+    .sort((a, b) => b.score - a.score);
 
   return (
     <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-5 shadow-xl space-y-4">
@@ -58,7 +70,7 @@ export const SiteLeaderboard: React.FC<SiteLeaderboardProps> = ({
             Candidate Site Feasibility Leaderboard
           </h2>
           <p className="text-xs text-slate-500 font-mono">
-            Comparative Screening Matrix Across All Official Artemis Regions
+            Comparative Screening Matrix Across Artemis Regions &amp; Custom Targets ({rankedSites.length} Sites)
           </p>
         </div>
         <span className="text-[11px] font-mono text-sky-400 bg-sky-500/10 border border-sky-500/20 px-2.5 py-1 rounded">
@@ -106,59 +118,70 @@ export const SiteLeaderboard: React.FC<SiteLeaderboardProps> = ({
               return (
                 <tr
                   key={item.site.id}
-                  className={`transition-colors hover:bg-slate-800/50 ${
-                    isSelected ? 'bg-sky-500/10 border-l-2 border-sky-400' : ''
+                  className={`transition-colors hover:bg-slate-800/40 ${
+                    isSelected ? 'bg-sky-500/10 border-l-2 border-l-sky-400' : ''
                   }`}
                 >
-                  <td className="py-3 px-3 text-slate-400 font-bold">#{index + 1}</td>
-                  <td className="py-3 px-3">
-                    <div className="font-semibold text-slate-200">{item.site.name}</div>
-                    <div className="text-[10px] text-slate-500">{item.site.designation}</div>
-                  </td>
-                  <td className="py-3 px-3 text-center">
-                    <div className="inline-flex items-center gap-1.5 font-bold">
-                      <span
-                        className={
-                          item.score >= 75
-                            ? 'text-emerald-400'
-                            : item.score >= 40
-                            ? 'text-amber-400'
-                            : 'text-rose-400'
-                        }
-                      >
-                        {item.score}
-                      </span>
-                      <span className="text-[10px] text-slate-500 font-normal">/ 100</span>
+                  <td className="py-2.5 px-3 text-slate-500 font-bold">#{index + 1}</td>
+                  <td className="py-2.5 px-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-slate-200 font-semibold">{item.site.name}</span>
+                      {item.site.category === 'custom' && (
+                        <span className="px-1.5 py-0.2 rounded text-[9px] bg-sky-950 border border-sky-700 text-sky-300">
+                          CUSTOM
+                        </span>
+                      )}
+                      {item.site.category === '2022-historical' && (
+                        <span className="px-1.5 py-0.2 rounded text-[9px] bg-slate-800 border border-slate-700 text-slate-400">
+                          2022 ARCHIVE
+                        </span>
+                      )}
                     </div>
+                    <span className="text-[10px] text-slate-500">{item.site.designation}</span>
                   </td>
-                  <td
-                    className={`py-3 px-3 text-right font-semibold ${
-                      item.sunElev > 0 ? 'text-amber-400' : 'text-slate-500'
-                    }`}
-                  >
-                    {item.sunElev > 0 ? '+' : ''}
-                    {item.sunElev.toFixed(2)}°
-                  </td>
-                  <td
-                    className={`py-3 px-3 text-right font-semibold ${
-                      item.earthElev > 0 ? 'text-cyan-400' : 'text-slate-500'
-                    }`}
-                  >
-                    {item.earthElev > 0 ? '+' : ''}
-                    {item.earthElev.toFixed(2)}°
-                  </td>
-                  <td className="py-3 px-3 text-center">{statusBadge}</td>
-                  <td className="py-3 px-3 text-right">
-                    <button
-                      onClick={() => onSelectSite(item.site)}
-                      className={`px-2.5 py-1 rounded text-[11px] transition-colors ${
-                        isSelected
-                          ? 'bg-sky-500 text-black font-bold'
-                          : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
+                  <td className="py-2.5 px-3 text-center">
+                    <span
+                      className={`inline-block font-bold ${
+                        item.score >= 80
+                          ? 'text-emerald-400'
+                          : item.score >= 50
+                          ? 'text-amber-400'
+                          : 'text-rose-400'
                       }`}
                     >
-                      {isSelected ? 'Active' : 'Select'}
-                    </button>
+                      {item.score}/100
+                    </span>
+                  </td>
+                  <td className="py-2.5 px-3 text-right">
+                    <span
+                      className={
+                        item.sunElev > 0 ? 'text-amber-300 font-semibold' : 'text-slate-500'
+                      }
+                    >
+                      {item.sunElev > 0 ? `+${item.sunElev.toFixed(2)}°` : `${item.sunElev.toFixed(2)}°`}
+                    </span>
+                  </td>
+                  <td className="py-2.5 px-3 text-right">
+                    <span
+                      className={
+                        item.earthElev > 0 ? 'text-sky-300 font-semibold' : 'text-rose-400'
+                      }
+                    >
+                      {item.earthElev > 0 ? `+${item.earthElev.toFixed(2)}°` : `${item.earthElev.toFixed(2)}°`}
+                    </span>
+                  </td>
+                  <td className="py-2.5 px-3 text-center">{statusBadge}</td>
+                  <td className="py-2.5 px-3 text-right">
+                    {isSelected ? (
+                      <span className="text-[11px] text-sky-400 font-bold">ACTIVE</span>
+                    ) : (
+                      <button
+                        onClick={() => onSelectSite(item.site)}
+                        className="px-2.5 py-1 rounded bg-slate-800 hover:bg-sky-600 hover:text-white text-slate-300 transition-colors text-[11px]"
+                      >
+                        Inspect
+                      </button>
+                    )}
                   </td>
                 </tr>
               );
